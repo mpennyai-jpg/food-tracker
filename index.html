@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Food Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f7d5d">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Food Tracker">
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --ink: #22303e;
+    --muted: #6b7a89;
+    --accent: #2f7d5d;
+    --accent-dark: #256349;
+    --danger: #c0392b;
+    --line: #dfe6ec;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { margin: 0; font-size: 1.4rem; font-weight: 600; }
+  .date-nav { display: flex; align-items: center; gap: 8px; }
+  .date-nav button {
+    background: rgba(255,255,255,.18);
+    border: none; color: #fff;
+    font-size: 1.2rem; padding: 6px 14px;
+    border-radius: 8px; cursor: pointer;
+  }
+  .date-nav button:hover { background: rgba(255,255,255,.32); }
+  .date-nav input[type=date] {
+    border: none; border-radius: 8px;
+    padding: 7px 10px; font-size: 1rem;
+    font-family: inherit;
+  }
+  main { max-width: 1100px; margin: 0 auto; padding: 18px; }
+
+  .entry-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  #micBtn {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 2.4rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(47,125,93,.35);
+    transition: transform .1s, background .2s;
+  }
+  #micBtn:hover { background: var(--accent-dark); }
+  #micBtn.listening {
+    background: var(--danger);
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(192,57,43,.45); }
+    70% { box-shadow: 0 0 0 22px rgba(192,57,43,0); }
+    100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+  }
+  .hint { color: var(--muted); margin: 10px 0 4px; }
+  #status {
+    min-height: 26px;
+    margin-top: 8px;
+    font-size: 1.05rem;
+  }
+  #status.ok { color: var(--accent-dark); }
+  #status.err { color: var(--danger); }
+
+  .typed-row {
+    display: flex; gap: 8px; justify-content: center;
+    margin-top: 14px; flex-wrap: wrap;
+  }
+  .typed-row input {
+    flex: 1 1 320px; max-width: 480px;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+  .typed-row button, .toolbar button {
+    background: var(--accent);
+    color: #fff; border: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .typed-row button:hover, .toolbar button:hover { background: var(--accent-dark); }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat .num { font-size: 1.6rem; font-weight: 700; }
+  .stat .lbl { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px 6px 14px;
+    overflow-x: auto;
+  }
+  .toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px 6px; flex-wrap: wrap; gap: 8px;
+  }
+  .toolbar h2 { margin: 0; font-size: 1.15rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .95rem;
+  }
+  th, td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+    white-space: nowrap;
+  }
+  th { background: #eef3f0; color: #33503f; position: sticky; top: 0; }
+  th:nth-child(-n+3), td:nth-child(-n+3) { text-align: left; }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  tfoot td {
+    font-weight: 700;
+    background: #eef3f0;
+    border-top: 2px solid var(--accent);
+  }
+  td input.qty {
+    width: 58px;
+    padding: 4px 6px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    text-align: center;
+    font-size: .95rem;
+  }
+  .del {
+    background: #fdeeec;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 5px 12px;
+    border-radius: 8px;
+  }
+  .del:hover { background: var(--danger); color: #fff; }
+  .empty {
+    text-align: center; color: var(--muted);
+    padding: 30px 10px;
+  }
+  .badge {
+    display: inline-block; font-size: .72rem;
+    background: #e8f0fb; color: #34608f;
+    border-radius: 6px; padding: 1px 6px;
+    margin-left: 6px; vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🥗 My Food Tracker</h1>
+  <div class="date-nav">
+    <button id="prevDay" title="Previous day">◀</button>
+    <input type="date" id="datePick">
+    <button id="nextDay" title="Next day">▶</button>
+  </div>
+</header>
+
+<main>
+  <div class="entry-card">
+    <button id="micBtn" title="Tap and speak what you ate">🎤</button>
+    <div class="hint">Tap the microphone and say what you ate — for example:
+      <em>"two scrambled eggs, a slice of toast and a cup of coffee"</em></div>
+    <div id="status"></div>
+    <div class="typed-row">
+      <input type="text" id="typedFood" placeholder="…or type it here, e.g. 1 banana and a cup of yogurt">
+      <button id="addTyped">Add</button>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="table-card">
+    <div class="toolbar">
+      <h2 id="tableTitle">Today's food</h2>
+      <button id="exportBtn">⬇ Export to Excel (CSV)</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th><th>Food</th><th>Serving</th><th>Qty</th>
+          <th>Calories</th><th>Protein (g)</th><th>Carbs (g)</th>
+          <th>Fat (g)</th><th>Fiber (g)</th><th>Sugar (g)</th><th>Sodium (mg)</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+      <tfoot id="totals"></tfoot>
+    </table>
+  </div>
+</main>
+
+<script>
+"use strict";
+
+/* ============ FOOD DATABASE ============
+   Per-serving values: c=calories, p=protein g, cb=carbs g, f=fat g,
+   fb=fiber g, sg=sugar g, sd=sodium mg. Approximate USDA values. */
+const FOODS = [
+ {n:"Egg", s:"1 large", a:["egg","eggs","boiled egg","hard boiled egg","hard-boiled egg"], c:72,p:6.3,cb:0.4,f:4.8,fb:0,sg:0.2,sd:71},
+ {n:"Scrambled egg", s:"1 egg", a:["scrambled egg","scrambled eggs"], c:91,p:6.1,cb:1,f:6.7,fb:0,sg:0.9,sd:88},
+ {n:"Fried egg", s:"1 egg", a:["fried egg","fried eggs"], c:90,p:6.3,cb:0.4,f:7,fb:0,sg:0.2,sd:94},
+ {n:"Bacon", s:"1 slice", a:["bacon","slice of bacon","strips of bacon","strip of bacon","bacon strips"], c:43,p:3,cb:0.1,f:3.3,fb:0,sg:0,sd:137},
+ {n:"Sausage link", s:"1 link", a:["sausage","sausage link","sausage links","breakfast sausage"], c:85,p:4.8,cb:0.7,f:7,fb:0,sg:0,sd:190},
+ {n:"Sausage patty", s:"1 patty", a:["sausage patty","sausage patties"], c:130,p:7,cb:1,f:11,fb:0,sg:0,sd:300},
+ {n:"Toast (white)", s:"1 slice", a:["toast","white toast","slice of toast","piece of toast","white bread","slice of bread","bread"], c:75,p:2.6,cb:14,f:1,fb:0.8,sg:1.5,sd:142},
+ {n:"Wheat bread", s:"1 slice", a:["wheat bread","wheat toast","whole wheat bread","whole wheat toast","slice of wheat bread"], c:81,p:4,cb:14,f:1.1,fb:1.9,sg:1.4,sd:144},
+ {n:"Bagel", s:"1 whole", a:["bagel","bagels","plain bagel"], c:289,p:11,cb:56,f:1.7,fb:2.4,sg:6,sd:561},
+ {n:"English muffin", s:"1 whole", a:["english muffin","english muffins"], c:134,p:4.4,cb:26,f:1,fb:1.5,sg:2,sd:264},
+ {n:"Pancake", s:"1 (4 inch)", a:["pancake","pancakes"], c:91,p:2.6,cb:15,f:2.5,fb:0.5,sg:2.3,sd:183},
+ {n:"Waffle", s:"1 (7 inch)", a:["waffle","waffles"], c:218,p:5.9,cb:25,f:11,fb:1.7,sg:2.2,sd:383},
+ {n:"Glazed donut", s:"1 donut", a:["donut","doughnut","glazed donut","donuts","doughnuts"], c:260,p:3,cb:31,f:14,fb:0.7,sg:12,sd:250},
+ {n:"Blueberry muffin", s:"1 muffin", a:["muffin","blueberry muffin","muffins"], c:385,p:6,cb:55,f:16,fb:1.5,sg:30,sd:350},
+ {n:"Croissant", s:"1 medium", a:["croissant","croissants"], c:231,p:4.7,cb:26,f:12,fb:1.5,sg:6.4,sd:424},
+ {n:"Oatmeal", s:"1 cup cooked", a:["oatmeal","bowl of oatmeal","cup of oatmeal","porridge","oats"], c:166,p:5.9,cb:28,f:3.6,fb:4,sg:0.6,sd:9},
+ {n:"Cereal (Cheerios-type)", s:"1 cup, no milk", a:["cereal","bowl of cereal","cheerios","cup of cereal"], c:105,p:3.5,cb:21,f:1.9,fb:2.8,sg:1.3,sd:140},
+ {n:"Milk (2%)", s:"1 cup", a:["milk","cup of milk","glass of milk","2% milk","two percent milk"], c:122,p:8.1,cb:11.7,f:4.8,fb:0,sg:12,sd:100},
+ {n:"Whole milk", s:"1 cup", a:["whole milk","glass of whole milk"], c:149,p:7.7,cb:11.7,f:7.9,fb:0,sg:12,sd:105},
+ {n:"Skim milk", s:"1 cup", a:["skim milk","fat free milk","nonfat milk"], c:83,p:8.3,cb:12,f:0.2,fb:0,sg:12,sd:103},
+ {n:"Yogurt", s:"1 cup", a:["yogurt","cup of yogurt","yoghurt"], c:150,p:8.5,cb:17,f:5,fb:0,sg:16,sd:113},
+ {n:"Greek yogurt", s:"1 cup plain", a:["greek yogurt","cup of greek yogurt"], c:146,p:20,cb:8,f:4,fb:0,sg:7,sd:68},
+ {n:"Cheddar cheese", s:"1 oz / 1 slice", a:["cheese","cheddar","cheddar cheese","slice of cheese","cheese slice"], c:114,p:6.5,cb:0.9,f:9.3,fb:0,sg:0.1,sd:185},
+ {n:"String cheese", s:"1 stick", a:["string cheese","cheese stick","cheese sticks"], c:80,p:7,cb:1,f:6,fb:0,sg:0,sd:200},
+ {n:"Butter", s:"1 tbsp", a:["butter","tablespoon of butter","pat of butter"], c:102,p:0.1,cb:0,f:11.5,fb:0,sg:0,sd:91},
+ {n:"Peanut butter", s:"1 tbsp", a:["peanut butter","tablespoon of peanut butter"], c:96,p:3.6,cb:3.5,f:8.2,fb:1,sg:1.5,sd:70},
+ {n:"Jelly / jam", s:"1 tbsp", a:["jelly","jam","tablespoon of jelly"], c:56,p:0,cb:14,f:0,fb:0.2,sg:10,sd:6},
+ {n:"Cream cheese", s:"1 tbsp", a:["cream cheese"], c:51,p:0.9,cb:0.8,f:5,fb:0,sg:0.5,sd:46},
+ {n:"Apple", s:"1 medium", a:["apple","apples"], c:95,p:0.5,cb:25,f:0.3,fb:4.4,sg:19,sd:2},
+ {n:"Banana", s:"1 medium", a:["banana","bananas"], c:105,p:1.3,cb:27,f:0.4,fb:3.1,sg:14,sd:1},
+ {n:"Orange", s:"1 medium", a:["orange","oranges"], c:62,p:1.2,cb:15,f:0.2,fb:3.1,sg:12,sd:0},
+ {n:"Grapes", s:"1 cup", a:["grapes","cup of grapes"], c:104,p:1.1,cb:27,f:0.2,fb:1.4,sg:23,sd:3},
+ {n:"Strawberries", s:"1 cup", a:["strawberries","strawberry","cup of strawberries"], c:49,p:1,cb:12,f:0.5,fb:3,sg:7,sd:2},
+ {n:"Blueberries", s:"1 cup", a:["blueberries","cup of blueberries"], c:84,p:1.1,cb:21,f:0.5,fb:3.6,sg:15,sd:1},
+ {n:"Watermelon", s:"1 cup diced", a:["watermelon","cup of watermelon"], c:46,p:0.9,cb:11.5,f:0.2,fb:0.6,sg:9.4,sd:2},
+ {n:"Peach", s:"1 medium", a:["peach","peaches"], c:59,p:1.4,cb:14,f:0.4,fb:2.3,sg:13,sd:0},
+ {n:"Pear", s:"1 medium", a:["pear","pears"], c:101,p:0.6,cb:27,f:0.2,fb:5.5,sg:17,sd:2},
+ {n:"Avocado", s:"1/2 avocado", a:["avocado","half an avocado","half avocado"], c:161,p:2,cb:8.5,f:15,fb:6.7,sg:0.7,sd:7},
+ {n:"Broccoli", s:"1 cup cooked", a:["broccoli","cup of broccoli"], c:55,p:3.7,cb:11,f:0.6,fb:5.1,sg:2.2,sd:64},
+ {n:"Baby carrots", s:"10 carrots", a:["carrots","carrot","baby carrots"], c:35,p:0.6,cb:8,f:0.1,fb:2.9,sg:4.5,sd:78},
+ {n:"Garden salad", s:"2 cups, no dressing", a:["salad","garden salad","side salad","green salad","house salad"], c:20,p:1.5,cb:4,f:0.2,fb:1.6,sg:2,sd:15},
+ {n:"Caesar salad", s:"1 serving", a:["caesar salad","chicken caesar salad"], c:190,p:5,cb:10,f:15,fb:2,sg:3,sd:450},
+ {n:"Baked potato", s:"1 medium", a:["baked potato","potato","potatoes"], c:161,p:4.3,cb:37,f:0.2,fb:3.8,sg:2,sd:17},
+ {n:"Mashed potatoes", s:"1 cup", a:["mashed potatoes","mashed potato","cup of mashed potatoes"], c:214,p:4,cb:35,f:7,fb:3,sg:3,sd:660},
+ {n:"Sweet potato", s:"1 medium", a:["sweet potato","sweet potatoes"], c:103,p:2.3,cb:24,f:0.2,fb:3.8,sg:7,sd:41},
+ {n:"French fries", s:"medium order", a:["french fries","fries","order of fries"], c:365,p:4,cb:48,f:17,fb:4,sg:0.5,sd:246},
+ {n:"Corn on the cob", s:"1 ear", a:["corn","corn on the cob","ear of corn"], c:88,p:3.3,cb:19,f:1.4,fb:2,sg:6.4,sd:15},
+ {n:"Green beans", s:"1 cup cooked", a:["green beans","cup of green beans"], c:44,p:2.4,cb:10,f:0.4,fb:4,sg:2,sd:1},
+ {n:"Peas", s:"1 cup cooked", a:["peas","cup of peas"], c:134,p:8.6,cb:25,f:0.4,fb:8.8,sg:9.5,sd:5},
+ {n:"Tomato", s:"1 medium", a:["tomato","tomatoes"], c:22,p:1.1,cb:4.8,f:0.2,fb:1.5,sg:3.2,sd:6},
+ {n:"White rice", s:"1 cup cooked", a:["rice","white rice","cup of rice","bowl of rice"], c:205,p:4.3,cb:45,f:0.4,fb:0.6,sg:0.1,sd:2},
+ {n:"Brown rice", s:"1 cup cooked", a:["brown rice","cup of brown rice"], c:248,p:5.5,cb:52,f:2,fb:3.2,sg:0.5,sd:8},
+ {n:"Pasta (plain)", s:"1 cup cooked", a:["pasta","noodles","cup of pasta","plain pasta"], c:221,p:8.1,cb:43,f:1.3,fb:2.5,sg:0.8,sd:1},
+ {n:"Spaghetti w/ meat sauce", s:"1 cup", a:["spaghetti","spaghetti with meat sauce","spaghetti and meatballs","spaghetti with sauce"], c:330,p:15,cb:40,f:12,fb:4,sg:8,sd:700},
+ {n:"Mac and cheese", s:"1 cup", a:["mac and cheese","macaroni and cheese","macaroni"], c:350,p:13,cb:40,f:15,fb:2,sg:6,sd:800},
+ {n:"Lasagna", s:"1 piece", a:["lasagna","piece of lasagna"], c:336,p:22,cb:35,f:12,fb:3,sg:8,sd:900},
+ {n:"Cheese pizza", s:"1 slice", a:["pizza","cheese pizza","slice of pizza","pizza slice","slices of pizza","piece of pizza","pieces of pizza"], c:285,p:12,cb:36,f:10,fb:2.5,sg:4,sd:640},
+ {n:"Pepperoni pizza", s:"1 slice", a:["pepperoni pizza","slice of pepperoni pizza","slices of pepperoni pizza"], c:313,p:13,cb:36,f:13,fb:2.5,sg:4,sd:760},
+ {n:"Chicken breast", s:"1 breast, cooked", a:["chicken breast","grilled chicken","grilled chicken breast","chicken breasts","baked chicken breast","chicken"], c:284,p:53,cb:0,f:6,fb:0,sg:0,sd:127},
+ {n:"Chicken thigh", s:"1 thigh, cooked", a:["chicken thigh","chicken thighs"], c:180,p:22,cb:0,f:10,fb:0,sg:0,sd:80},
+ {n:"Fried chicken", s:"1 piece", a:["fried chicken","piece of fried chicken","pieces of fried chicken"], c:320,p:30,cb:11,f:17,fb:0.4,sg:0,sd:620},
+ {n:"Chicken nuggets", s:"6 nuggets", a:["chicken nuggets","nuggets"], c:280,p:13,cb:18,f:17,fb:1,sg:0,sd:540},
+ {n:"Ground beef (85/15)", s:"4 oz cooked", a:["ground beef","hamburger meat","beef"], c:290,p:26,cb:0,f:20,fb:0,sg:0,sd:90},
+ {n:"Hamburger", s:"1 burger with bun", a:["hamburger","burger","hamburgers"], c:350,p:20,cb:33,f:15,fb:1.5,sg:7,sd:500},
+ {n:"Cheeseburger", s:"1 burger with bun", a:["cheeseburger","cheeseburgers"], c:450,p:25,cb:34,f:22,fb:1.5,sg:8,sd:800},
+ {n:"Steak (sirloin)", s:"8 oz cooked", a:["steak","sirloin","sirloin steak","ribeye"], c:460,p:60,cb:0,f:22,fb:0,sg:0,sd:130},
+ {n:"Pork chop", s:"1 chop, cooked", a:["pork chop","pork chops","pork"], c:197,p:26,cb:0,f:9,fb:0,sg:0,sd:55},
+ {n:"Deli ham", s:"2 oz", a:["ham","deli ham","slice of ham","slices of ham"], c:60,p:10,cb:1.5,f:1.5,fb:0,sg:1,sd:620},
+ {n:"Deli turkey", s:"2 oz", a:["turkey","deli turkey","sliced turkey","turkey slices"], c:60,p:12,cb:1,f:0.5,fb:0,sg:1,sd:540},
+ {n:"Meatloaf", s:"1 slice", a:["meatloaf","slice of meatloaf"], c:294,p:23,cb:9,f:18,fb:0.6,sg:2,sd:340},
+ {n:"Salmon", s:"6 oz fillet", a:["salmon","salmon fillet","grilled salmon","piece of salmon"], c:350,p:37,cb:0,f:21,fb:0,sg:0,sd:100},
+ {n:"Canned tuna", s:"1 can (drained)", a:["tuna","can of tuna","tuna fish"], c:120,p:27,cb:0,f:1,fb:0,sg:0,sd:320},
+ {n:"Shrimp", s:"3 oz cooked", a:["shrimp","grilled shrimp"], c:84,p:20,cb:0,f:0.5,fb:0,sg:0,sd:94},
+ {n:"Hot dog with bun", s:"1 hot dog", a:["hot dog","hotdog","hot dogs","hot dog with bun"], c:314,p:11,cb:24,f:19,fb:0.8,sg:4,sd:810},
+ {n:"Turkey sandwich", s:"1 sandwich", a:["turkey sandwich","sandwich"], c:330,p:22,cb:40,f:9,fb:3,sg:5,sd:1200},
+ {n:"PB&J sandwich", s:"1 sandwich", a:["peanut butter and jelly","pb&j","pbj","peanut butter and jelly sandwich","peanut butter sandwich"], c:378,p:12,cb:45,f:17,fb:4,sg:15,sd:350},
+ {n:"Grilled cheese", s:"1 sandwich", a:["grilled cheese","grilled cheese sandwich"], c:400,p:14,cb:30,f:25,fb:1.5,sg:4,sd:900},
+ {n:"BLT sandwich", s:"1 sandwich", a:["blt","blt sandwich","bacon lettuce and tomato"], c:340,p:12,cb:30,f:19,fb:2,sg:4,sd:900},
+ {n:"Taco", s:"1 taco", a:["taco","tacos","beef taco"], c:210,p:9,cb:18,f:12,fb:3,sg:1,sd:350},
+ {n:"Burrito", s:"1 burrito", a:["burrito","burritos"], c:450,p:20,cb:55,f:16,fb:7,sg:3,sd:1000},
+ {n:"Quesadilla", s:"1 quesadilla", a:["quesadilla","quesadillas"], c:500,p:22,cb:40,f:28,fb:2.5,sg:3,sd:950},
+ {n:"Chili", s:"1 cup", a:["chili","bowl of chili","cup of chili"], c:260,p:20,cb:22,f:10,fb:8,sg:4,sd:900},
+ {n:"Chicken noodle soup", s:"1 cup", a:["chicken noodle soup","soup","chicken soup","bowl of soup","cup of soup"], c:75,p:4,cb:9,f:2.5,fb:0.7,sg:1,sd:866},
+ {n:"Tomato soup", s:"1 cup", a:["tomato soup","bowl of tomato soup"], c:74,p:2,cb:16,f:0.7,fb:1.5,sg:10,sd:700},
+ {n:"Black beans", s:"1 cup cooked", a:["black beans","beans","cup of beans"], c:227,p:15,cb:41,f:0.9,fb:15,sg:0.6,sd:2},
+ {n:"Baked beans", s:"1 cup", a:["baked beans","cup of baked beans"], c:266,p:12,cb:52,f:1,fb:10,sg:20,sd:1030},
+ {n:"Fried rice", s:"1 cup", a:["fried rice","cup of fried rice"], c:238,p:6,cb:45,f:4,fb:1.4,sg:1,sd:530},
+ {n:"California roll", s:"8 pieces", a:["sushi","california roll","sushi roll"], c:255,p:9,cb:38,f:7,fb:3,sg:7,sd:430},
+ {n:"Ramen noodles", s:"1 package", a:["ramen","ramen noodles","instant noodles"], c:380,p:8,cb:52,f:14,fb:2,sg:1,sd:1590},
+ {n:"Flour tortilla", s:"1 (8 inch)", a:["tortilla","flour tortilla","tortillas"], c:140,p:4,cb:24,f:3.5,fb:1,sg:1,sd:330},
+ {n:"Biscuit", s:"1 biscuit", a:["biscuit","biscuits"], c:212,p:4,cb:27,f:10,fb:1,sg:2,sd:580},
+ {n:"Cornbread", s:"1 piece", a:["cornbread","corn bread","piece of cornbread"], c:188,p:4,cb:29,f:6,fb:1.4,sg:9,sd:467},
+ {n:"Potato chips", s:"1 oz (about 15 chips)", a:["chips","potato chips","bag of chips"], c:152,p:2,cb:15,f:10,fb:1.3,sg:0.1,sd:150},
+ {n:"Tortilla chips", s:"1 oz", a:["tortilla chips","chips and salsa","nachos"], c:140,p:2,cb:19,f:7,fb:1.2,sg:0.3,sd:115},
+ {n:"Crackers", s:"5 crackers", a:["crackers","ritz crackers","cracker"], c:80,p:1,cb:10,f:4,fb:0.5,sg:1,sd:135},
+ {n:"Popcorn", s:"3 cups popped", a:["popcorn","bowl of popcorn","bag of popcorn"], c:120,p:3,cb:15,f:7,fb:2.5,sg:0,sd:210},
+ {n:"Pretzels", s:"1 oz", a:["pretzels","pretzel"], c:108,p:2.6,cb:22,f:0.8,fb:1,sg:0.8,sd:385},
+ {n:"Chocolate chip cookie", s:"1 medium", a:["cookie","cookies","chocolate chip cookie","chocolate chip cookies"], c:78,p:0.9,cb:9.3,f:4.5,fb:0.4,sg:6,sd:55},
+ {n:"Brownie", s:"1 square", a:["brownie","brownies"], c:130,p:1.5,cb:18,f:6,fb:0.7,sg:12,sd:80},
+ {n:"Ice cream", s:"1 cup", a:["ice cream","bowl of ice cream","cup of ice cream","scoop of ice cream","vanilla ice cream","chocolate ice cream"], c:274,p:4.6,cb:31,f:15,fb:0.9,sg:28,sd:106},
+ {n:"Milk chocolate bar", s:"1 bar (1.55 oz)", a:["chocolate","chocolate bar","candy bar","hershey bar"], c:235,p:3.4,cb:26,f:13,fb:1.5,sg:22,sd:35},
+ {n:"Cake", s:"1 slice", a:["cake","slice of cake","piece of cake","birthday cake"], c:350,p:4,cb:50,f:15,fb:1,sg:35,sd:300},
+ {n:"Apple pie", s:"1 slice", a:["pie","apple pie","slice of pie","piece of pie"], c:296,p:2.4,cb:43,f:14,fb:2,sg:20,sd:251},
+ {n:"Granola bar", s:"1 bar", a:["granola bar","granola bars","protein bar"], c:120,p:2,cb:20,f:4,fb:1.5,sg:8,sd:80},
+ {n:"Almonds", s:"1 oz (23 nuts)", a:["almonds","handful of almonds","nuts","handful of nuts"], c:164,p:6,cb:6,f:14,fb:3.5,sg:1.2,sd:0},
+ {n:"Peanuts", s:"1 oz", a:["peanuts","handful of peanuts"], c:161,p:7.3,cb:4.6,f:14,fb:2.4,sg:1.2,sd:5},
+ {n:"Trail mix", s:"1 oz", a:["trail mix"], c:137,p:4,cb:13,f:9,fb:1.6,sg:8,sd:34},
+ {n:"Black coffee", s:"1 cup", a:["coffee","black coffee","cup of coffee","cups of coffee"], c:2,p:0.3,cb:0,f:0,fb:0,sg:0,sd:5},
+ {n:"Coffee w/ cream & sugar", s:"1 cup", a:["coffee with cream and sugar","coffee with cream","coffee with sugar"], c:60,p:0.5,cb:8,f:3,fb:0,sg:8,sd:10},
+ {n:"Latte", s:"12 oz", a:["latte","cappuccino"], c:150,p:8,cb:15,f:6,fb:0,sg:13,sd:105},
+ {n:"Hot tea", s:"1 cup", a:["tea","cup of tea","green tea","iced tea unsweetened"], c:2,p:0,cb:0.5,f:0,fb:0,sg:0,sd:0},
+ {n:"Soda", s:"12 oz can", a:["soda","coke","pepsi","can of soda","pop","soft drink","cola"], c:140,p:0,cb:39,f:0,fb:0,sg:39,sd:45},
+ {n:"Diet soda", s:"12 oz can", a:["diet soda","diet coke","diet pepsi"], c:0,p:0,cb:0,f:0,fb:0,sg:0,sd:40},
+ {n:"Orange juice", s:"1 cup", a:["orange juice","glass of orange juice","oj"], c:112,p:1.7,cb:26,f:0.5,fb:0.5,sg:21,sd:2},
+ {n:"Apple juice", s:"1 cup", a:["apple juice","glass of apple juice"], c:114,p:0.2,cb:28,f:0.3,fb:0.2,sg:24,sd:10},
+ {n:"Beer", s:"12 oz", a:["beer","bottle of beer","can of beer"], c:153,p:1.6,cb:13,f:0,fb:0,sg:0,sd:14},
+ {n:"Light beer", s:"12 oz", a:["light beer"], c:103,p:0.9,cb:6,f:0,fb:0,sg:0.3,sd:14},
+ {n:"Wine", s:"5 oz glass", a:["wine","glass of wine","red wine","white wine"], c:123,p:0.1,cb:4,f:0,fb:0,sg:1,sd:6},
+ {n:"Water", s:"1 glass", a:["water","glass of water","bottle of water"], c:0,p:0,cb:0,f:0,fb:0,sg:0,sd:0},
+ {n:"Fruit smoothie", s:"12 oz", a:["smoothie","fruit smoothie"], c:210,p:3,cb:45,f:2,fb:4,sg:35,sd:40},
+ {n:"Protein shake", s:"1 shake", a:["protein shake","protein drink"], c:160,p:30,cb:5,f:3,fb:1,sg:2,sd:220},
+ {n:"Mayonnaise", s:"1 tbsp", a:["mayo","mayonnaise"], c:94,p:0.1,cb:0.1,f:10,fb:0,sg:0.1,sd:88},
+ {n:"Ketchup", s:"1 tbsp", a:["ketchup","catsup"], c:17,p:0.2,cb:4.5,f:0,fb:0,sg:3.6,sd:154},
+ {n:"Ranch dressing", s:"2 tbsp", a:["ranch","ranch dressing"], c:129,p:0.4,cb:1.8,f:13.4,fb:0,sg:1.4,sd:270},
+ {n:"Italian dressing", s:"2 tbsp", a:["italian dressing","salad dressing","dressing"], c:71,p:0.1,cb:3,f:6,fb:0,sg:2.4,sd:292},
+ {n:"Olive oil", s:"1 tbsp", a:["olive oil","oil"], c:119,p:0,cb:0,f:13.5,fb:0,sg:0,sd:0},
+ {n:"Hummus", s:"2 tbsp", a:["hummus"], c:70,p:2,cb:4,f:5,fb:1.5,sg:0,sd:130}
+];
+
+/* ============ FOOD MATCHING ============ */
+const FILLER = new Set(["of","the","a","an","some","my","with","and"]);
+function norm(s){
+  return s.toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean)
+    .map(w => (w.length>3 && w.endsWith("s") && !w.endsWith("ss")) ? w.slice(0,-1) : w)
+    .join(" ");
+}
+function tokens(s){ return norm(s).split(" ").filter(w => !FILLER.has(w)); }
+
+const ALIAS_INDEX = [];
+FOODS.forEach(food => food.a.forEach(al => ALIAS_INDEX.push({key: norm(al), toks: tokens(al), food})));
+
+function matchFood(query){
+  const q = norm(query), qt = tokens(query);
+  if (!qt.length) return null;
+  let best = null, bestScore = 0;
+  for (const {key, toks, food} of ALIAS_INDEX){
+    let score = 0;
+    if (key === q) score = 100;
+    else if (q.includes(key) || key.includes(q)) score = 75 - Math.abs(key.length - q.length);
+    else {
+      const shared = toks.filter(t => qt.includes(t)).length;
+      if (shared) score = 65 * (2*shared) / (toks.length + qt.length);
+    }
+    if (score > bestScore){ bestScore = score; best = food; }
+  }
+  return bestScore >= 40 ? best : null;
+}
+
+/* ============ QUANTITY / PHRASE PARSING ============ */
+const NUM_WORDS = {a:1,an:1,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,
+  nine:9,ten:10,eleven:11,twelve:12,couple:2,few:3,half:0.5,quarter:0.25};
+
+function parseTranscript(text){
+  let t = " " + text.toLowerCase().replace(/[.!?]/g,"") + " ";
+  // number words -> digits
+  for (const [w,v] of Object.entries(NUM_WORDS)){
+    if (w==="a"||w==="an") continue;
+    t = t.replace(new RegExp("\\b"+w+"\\b","g"), String(v));
+  }
+  t = t.replace(/\b(\d+(?:\.\d+)?) and (?:a )?0\.5\b/g, (_,n)=> String(parseFloat(n)+0.5));
+  t = t.replace(/\b(?:a|an) 0\.5(?: of)?\b/g, "0.5");
+  t = t.replace(/\bcouple of\b/g,"2");
+  // split into food segments
+  const parts = t.split(/,| and also | and then | and /).map(s=>s.trim()).filter(Boolean);
+  const items = [];
+  for (let part of parts){
+    let qty = 1;
+    let m = part.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
+    if (m){ qty = parseFloat(m[1]); part = m[2]; }
+    else {
+      m = part.match(/^(?:a|an)\s+(.*)$/);
+      if (m) part = m[1];
+    }
+    part = part.replace(/^(?:i (?:ate|had|drank|have|just had)|ate|had|drank)\s+/,"").trim();
+    if (!part) continue;
+    // re-check for qty after verb: "I had 2 eggs"
+    m = part.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
+    if (m){ qty = parseFloat(m[1]); part = m[2]; }
+    items.push({qty, text: part});
+  }
+  return items;
+}
+
+/* ============ USDA ONLINE FALLBACK ============ */
+async function usdaLookup(query){
+  const url = "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&pageSize=1&query=" + encodeURIComponent(query);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("USDA lookup failed");
+  const data = await res.json();
+  const f = data.foods && data.foods[0];
+  if (!f) return null;
+  const get = names => {
+    for (const fn of f.foodNutrients || []){
+      const nm = (fn.nutrientName||"").toLowerCase();
+      if (names.some(n => nm.includes(n))) return fn.value || 0;
+    }
+    return 0;
+  };
+  return {
+    n: (f.description||query).toLowerCase().replace(/\b\w/g, ch=>ch.toUpperCase()).slice(0,60),
+    s: "100 g", online: true,
+    c: get(["energy"]), p: get(["protein"]), cb: get(["carbohydrate"]),
+    f: get(["total lipid","fat"]), fb: get(["fiber"]),
+    sg: get(["sugars"]), sd: get(["sodium"])
+  };
+}
+
+/* ============ STORAGE & STATE ============ */
+const STORE_KEY = "foodTrackerEntries";
+let entries = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+let currentDate = todayStr();
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(entries)); }
+
+function addEntry(food, qty){
+  const now = new Date();
+  entries.push({
+    id: Date.now() + Math.random(),
+    date: currentDate,
+    time: now.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}),
+    name: food.n, serving: food.s, qty: qty, online: !!food.online,
+    c:food.c, p:food.p, cb:food.cb, f:food.f, fb:food.fb, sg:food.sg, sd:food.sd
+  });
+  save(); render();
+}
+
+/* ============ ADD FROM SPEECH / TEXT ============ */
+async function handlePhrase(text){
+  const items = parseTranscript(text);
+  if (!items.length){ setStatus("I didn't catch any food in that — please try again.", "err"); return; }
+  const added = [], unknown = [];
+  for (const it of items){
+    const food = matchFood(it.text);
+    if (food){ addEntry(food, it.qty); added.push(fmtQty(it.qty) + " " + food.n); }
+    else unknown.push(it);
+  }
+  // Try online lookup for unknowns
+  for (const it of unknown){
+    setStatus("Looking up \"" + it.text + "\" online…", "");
+    try {
+      const food = await usdaLookup(it.text);
+      if (food){ addEntry(food, it.qty); added.push(fmtQty(it.qty) + " " + food.n + " (online)"); }
+      else added.push("❓ couldn't find \"" + it.text + "\"");
+    } catch(e){
+      added.push("❓ couldn't find \"" + it.text + "\" (no internet?)");
+    }
+  }
+  setStatus(added.length ? "Added: " + added.join(" · ") : "Nothing matched — try again.", added.length ? "ok" : "err");
+}
+function fmtQty(q){ return q === Math.round(q) ? String(q) : q.toFixed(1); }
+
+/* ============ SPEECH RECOGNITION ============ */
+const micBtn = document.getElementById("micBtn");
+const statusEl = document.getElementById("status");
+function setStatus(msg, cls){ statusEl.textContent = msg; statusEl.className = cls || ""; }
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null, listening = false;
+if (SR){
+  recog = new SR();
+  recog.lang = "en-US";
+  recog.interimResults = true;
+  recog.continuous = false;
+  recog.onresult = e => {
+    let finalText = "", interim = "";
+    for (const r of e.results){
+      if (r.isFinal) finalText += r[0].transcript;
+      else interim += r[0].transcript;
+    }
+    if (interim) setStatus("Hearing: " + interim, "");
+    if (finalText){ setStatus("Heard: \"" + finalText.trim() + "\"", ""); handlePhrase(finalText); }
+  };
+  recog.onend = () => { listening = false; micBtn.classList.remove("listening"); };
+  recog.onerror = e => {
+    listening = false; micBtn.classList.remove("listening");
+    if (e.error === "not-allowed") setStatus("Microphone blocked — click the 🔒/mic icon in the address bar and allow the microphone.", "err");
+    else if (e.error === "no-speech") setStatus("Didn't hear anything — tap the mic and try again.", "err");
+    else setStatus("Speech error: " + e.error, "err");
+  };
+  micBtn.addEventListener("click", () => {
+    if (listening){ recog.stop(); return; }
+    setStatus("Listening… say what you ate.", "");
+    listening = true; micBtn.classList.add("listening");
+    recog.start();
+  });
+} else {
+  micBtn.disabled = true;
+  setStatus("Voice input needs Chrome or Microsoft Edge. You can still type foods below.", "err");
+}
+
+/* Typed entry */
+document.getElementById("addTyped").addEventListener("click", submitTyped);
+document.getElementById("typedFood").addEventListener("keydown", e => { if (e.key === "Enter") submitTyped(); });
+function submitTyped(){
+  const box = document.getElementById("typedFood");
+  if (box.value.trim()){ handlePhrase(box.value.trim()); box.value = ""; }
+}
+
+/* ============ DATE NAVIGATION ============ */
+const datePick = document.getElementById("datePick");
+datePick.value = currentDate;
+datePick.addEventListener("change", () => { currentDate = datePick.value || todayStr(); render(); });
+document.getElementById("prevDay").addEventListener("click", () => shiftDay(-1));
+document.getElementById("nextDay").addEventListener("click", () => shiftDay(1));
+function shiftDay(n){
+  const d = new Date(currentDate + "T12:00:00");
+  d.setDate(d.getDate() + n);
+  currentDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  datePick.value = currentDate;
+  render();
+}
+
+/* ============ RENDER ============ */
+const NUTS = [["c","Calories",0],["p","Protein",1],["cb","Carbs",1],["f","Fat",1],["fb","Fiber",1],["sg","Sugar",1],["sd","Sodium",0]];
+
+function render(){
+  const dayRows = entries.filter(e => e.date === currentDate);
+  const tbody = document.getElementById("rows");
+  const tfoot = document.getElementById("totals");
+  const title = document.getElementById("tableTitle");
+  const isToday = currentDate === todayStr();
+  title.textContent = (isToday ? "Today's food" : "Food for " + new Date(currentDate+"T12:00:00").toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"}));
+
+  tbody.innerHTML = "";
+  if (!dayRows.length){
+    tbody.innerHTML = '<tr><td colspan="12" class="empty">Nothing logged for this day yet. Tap the mic and tell me what you ate!</td></tr>';
+  }
+  const totals = {c:0,p:0,cb:0,f:0,fb:0,sg:0,sd:0};
+  for (const e of dayRows){
+    for (const k of Object.keys(totals)) totals[k] += e[k] * e.qty;
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + e.time + "</td>" +
+      "<td>" + esc(e.name) + (e.online ? '<span class="badge">online</span>' : "") + "</td>" +
+      "<td>" + esc(e.serving) + "</td>" +
+      '<td><input class="qty" type="number" min="0" step="0.5" value="' + e.qty + '"></td>' +
+      NUTS.map(([k,,d]) => "<td>" + (e[k]*e.qty).toFixed(d) + "</td>").join("") +
+      '<td><button class="del" title="Delete this item">🗑 Delete</button></td>';
+    tr.querySelector(".qty").addEventListener("change", ev => {
+      e.qty = Math.max(0, parseFloat(ev.target.value) || 0);
+      save(); render();
+    });
+    tr.querySelector(".del").addEventListener("click", () => {
+      entries = entries.filter(x => x.id !== e.id);
+      save(); render();
+    });
+    tbody.appendChild(tr);
+  }
+  tfoot.innerHTML = "<tr><td colspan='4'>DAY TOTAL</td>" +
+    NUTS.map(([k,,d]) => "<td>" + totals[k].toFixed(d) + "</td>").join("") + "<td></td></tr>";
+
+  // summary cards
+  const summary = document.getElementById("summary");
+  const cards = [
+    ["Calories", totals.c.toFixed(0), ""],
+    ["Fat", totals.f.toFixed(1), "g"],
+    ["Fiber", totals.fb.toFixed(1), "g"],
+    ["Protein", totals.p.toFixed(1), "g"],
+    ["Carbs", totals.cb.toFixed(1), "g"],
+    ["Sugar", totals.sg.toFixed(1), "g"],
+    ["Sodium", totals.sd.toFixed(0), "mg"]
+  ];
+  summary.innerHTML = cards.map(([lbl,val,unit]) =>
+    '<div class="stat"><div class="num">' + val + '<small style="font-size:.9rem;color:var(--muted)"> ' + unit + '</small></div><div class="lbl">' + lbl + "</div></div>").join("");
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* ============ CSV EXPORT ============ */
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const dayRows = entries.filter(e => e.date === currentDate);
+  const head = ["Date","Time","Food","Serving","Qty","Calories","Protein (g)","Carbs (g)","Fat (g)","Fiber (g)","Sugar (g)","Sodium (mg)"];
+  const lines = [head.join(",")];
+  const totals = {c:0,p:0,cb:0,f:0,fb:0,sg:0,sd:0};
+  for (const e of dayRows){
+    for (const k of Object.keys(totals)) totals[k] += e[k]*e.qty;
+    lines.push([e.date, e.time, csvq(e.name), csvq(e.serving), e.qty,
+      (e.c*e.qty).toFixed(0),(e.p*e.qty).toFixed(1),(e.cb*e.qty).toFixed(1),(e.f*e.qty).toFixed(1),
+      (e.fb*e.qty).toFixed(1),(e.sg*e.qty).toFixed(1),(e.sd*e.qty).toFixed(0)].join(","));
+  }
+  lines.push(["","","DAY TOTAL","","",totals.c.toFixed(0),totals.p.toFixed(1),totals.cb.toFixed(1),
+    totals.f.toFixed(1),totals.fb.toFixed(1),totals.sg.toFixed(1),totals.sd.toFixed(0)].join(","));
+  const blob = new Blob(["﻿" + lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "food-log-" + currentDate + ".csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+function csvq(s){ return '"' + String(s).replace(/"/g,'""') + '"'; }
+
+render();
+</script>
+</body>
+</html>
