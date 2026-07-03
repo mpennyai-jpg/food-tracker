@@ -190,6 +190,53 @@
     border-radius: 6px; padding: 1px 6px;
     margin-left: 6px; vertical-align: middle;
   }
+  .panel-btns { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .panel-btns button {
+    flex: 1 1 200px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .panel-btns button.active { border-color: var(--accent); background: #e9f3ee; font-weight: 600; }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .panel h2 { margin: 0 0 10px; font-size: 1.15rem; }
+  .menu-item, .recipe-row, .ing-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 9px 6px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .menu-item .info, .recipe-row .info, .ing-row .info { flex: 1; min-width: 180px; }
+  .cals { color: var(--muted); font-size: .88rem; }
+  .small-btn {
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 8px;
+    padding: 8px 14px; cursor: pointer; font-size: .95rem;
+  }
+  .small-btn:hover { background: var(--accent-dark); }
+  .small-btn.gray { background: #7a8794; }
+  .small-btn.red { background: var(--danger); }
+  .panel select, .panel input[type=text], .panel input[type=number] {
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  .servings-inp { width: 70px; text-align: center; }
+  .builder { border-top: 2px solid var(--accent); margin-top: 14px; padding-top: 14px; }
+  .builder .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .muted { color: var(--muted); font-size: .9rem; }
 </style>
 </head>
 <body>
@@ -207,11 +254,49 @@
   <div class="entry-card">
     <button id="micBtn" title="Tap and speak what you ate">🎤</button>
     <div class="hint">Tap the microphone and say what you ate — for example:
-      <em>"two scrambled eggs, a slice of toast and a cup of coffee"</em></div>
+      <em>"two scrambled eggs, a slice of toast and a cup of coffee"</em> —
+      restaurant food works too: <em>"a Big Mac and a small fry from Arby's"</em></div>
     <div id="status"></div>
     <div class="typed-row">
       <input type="text" id="typedFood" placeholder="…or type it here, e.g. 1 banana and a cup of yogurt">
       <button id="addTyped">Add</button>
+    </div>
+  </div>
+
+  <div class="panel-btns">
+    <button id="restBtn">🍔 Restaurant Menus</button>
+    <button id="recipeBtn">📖 My Recipes</button>
+  </div>
+
+  <div class="panel" id="restPanel" style="display:none">
+    <h2>Restaurant menus</h2>
+    <div style="margin-bottom:8px">
+      Restaurant: <select id="chainPick"></select>
+    </div>
+    <div id="menuList"></div>
+  </div>
+
+  <div class="panel" id="recipePanel" style="display:none">
+    <h2>My recipes</h2>
+    <div id="recipeList"></div>
+    <button class="small-btn" id="newRecipeBtn" style="margin-top:12px">➕ New recipe</button>
+    <div class="builder" id="builder" style="display:none">
+      <div class="row">
+        <label>Recipe name: <input type="text" id="rName" placeholder="e.g. Mom's chili"></label>
+        <label>Makes <input type="number" class="servings-inp" id="rServings" value="4" min="1" step="1"> servings</label>
+      </div>
+      <div class="row">
+        <input type="number" class="servings-inp" id="ingQty" value="1" min="0" step="0.25" title="How much of this ingredient">
+        <input type="text" id="ingSearch" list="foodList" placeholder="ingredient, e.g. ground beef" style="flex:1;min-width:200px">
+        <datalist id="foodList"></datalist>
+        <button class="small-btn" id="addIng">Add ingredient</button>
+      </div>
+      <div id="ingList"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="small-btn" id="saveRecipe">💾 Save recipe</button>
+        <button class="small-btn gray" id="cancelRecipe">Cancel</button>
+        <span class="muted" id="builderTotals"></span>
+      </div>
     </div>
   </div>
 
@@ -372,23 +457,186 @@ const FOODS = [
  {n:"Hummus", s:"2 tbsp", a:["hummus"], c:70,p:2,cb:4,f:5,fb:1.5,sg:0,sd:130}
 ];
 
-/* ============ FOOD MATCHING ============ */
-const FILLER = new Set(["of","the","a","an","some","my","with","and"]);
-function norm(s){
-  return s.toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(Boolean)
-    .map(w => (w.length>3 && w.endsWith("s") && !w.endsWith("ss")) ? w.slice(0,-1) : w)
-    .join(" ");
-}
-function tokens(s){ return norm(s).split(" ").filter(w => !FILLER.has(w)); }
+/* ============ RESTAURANT MENUS ============
+   Published nutrition values (approximate). */
+const RESTAURANTS = [
+ {chain:"McDonald's", items:[
+  {n:"Big Mac", s:"1 sandwich", a:["big mac"], c:590,p:25,cb:46,f:34,fb:3,sg:9,sd:1050},
+  {n:"Quarter Pounder w/ Cheese", s:"1 sandwich", a:["quarter pounder"], c:520,p:30,cb:42,f:26,fb:2,sg:10,sd:1140},
+  {n:"Cheeseburger", s:"1 sandwich", a:[], c:300,p:15,cb:32,f:13,fb:2,sg:7,sd:720},
+  {n:"Hamburger", s:"1 sandwich", a:[], c:250,p:12,cb:31,f:9,fb:1,sg:6,sd:510},
+  {n:"McChicken", s:"1 sandwich", a:["mcchicken","chicken sandwich"], c:400,p:14,cb:39,f:21,fb:1,sg:5,sd:560},
+  {n:"Crispy Chicken Sandwich", s:"1 sandwich", a:[], c:470,p:27,cb:46,f:20,fb:1,sg:9,sd:1140},
+  {n:"Chicken McNuggets (6 pc)", s:"6 nuggets", a:["6 piece nuggets"], c:250,p:14,cb:15,f:15,fb:1,sg:0,sd:540},
+  {n:"Chicken McNuggets (10 pc)", s:"10 nuggets", a:["mcnuggets","nuggets","10 piece nuggets"], c:410,p:23,cb:25,f:24,fb:1,sg:0,sd:900},
+  {n:"French Fries (small)", s:"1 small", a:["small fries","small fry"], c:230,p:3,cb:31,f:11,fb:3,sg:0,sd:190},
+  {n:"French Fries (medium)", s:"1 medium", a:["medium fries","fries"], c:320,p:5,cb:43,f:15,fb:4,sg:0,sd:260},
+  {n:"French Fries (large)", s:"1 large", a:["large fries"], c:480,p:7,cb:65,f:23,fb:6,sg:0,sd:400},
+  {n:"Filet-O-Fish", s:"1 sandwich", a:["filet o fish","fish sandwich"], c:390,p:16,cb:39,f:19,fb:2,sg:5,sd:580},
+  {n:"Egg McMuffin", s:"1 sandwich", a:["egg mcmuffin"], c:310,p:17,cb:30,f:13,fb:2,sg:3,sd:770},
+  {n:"Hash Browns", s:"1 order", a:["hash brown"], c:140,p:2,cb:18,f:8,fb:2,sg:0,sd:310},
+  {n:"McFlurry w/ Oreo (regular)", s:"1 regular", a:["mcflurry","oreo mcflurry"], c:510,p:12,cb:80,f:17,fb:1,sg:63,sd:260},
+  {n:"Vanilla Cone", s:"1 cone", a:["ice cream cone"], c:200,p:5,cb:32,f:5,fb:0,sg:24,sd:90}]},
+ {chain:"Arby's", items:[
+  {n:"Classic Roast Beef", s:"1 sandwich", a:["roast beef","roast beef sandwich"], c:360,p:23,cb:37,f:14,fb:2,sg:5,sd:970},
+  {n:"Beef 'n Cheddar", s:"1 sandwich", a:["beef and cheddar"], c:450,p:23,cb:45,f:20,fb:2,sg:9,sd:1280},
+  {n:"Classic Crispy Chicken Sandwich", s:"1 sandwich", a:["chicken sandwich"], c:510,p:28,cb:48,f:24,fb:2,sg:6,sd:1250},
+  {n:"Curly Fries (small)", s:"1 small", a:["small fry","small fries","curly fries"], c:410,p:5,cb:49,f:22,fb:5,sg:0,sd:950},
+  {n:"Curly Fries (medium)", s:"1 medium", a:["medium curly fries"], c:550,p:6,cb:65,f:29,fb:6,sg:0,sd:1250},
+  {n:"Crinkle Fries (small)", s:"1 small", a:["crinkle fries"], c:350,p:4,cb:44,f:17,fb:3,sg:0,sd:810},
+  {n:"Mozzarella Sticks (4 pc)", s:"4 sticks", a:["mozzarella sticks"], c:440,p:18,cb:38,f:24,fb:2,sg:2,sd:1330},
+  {n:"Jamocha Shake (small)", s:"1 small", a:["jamocha shake","shake"], c:450,p:10,cb:76,f:12,fb:1,sg:64,sd:320}]},
+ {chain:"Wendy's", items:[
+  {n:"Dave's Single", s:"1 burger", a:["daves single"], c:570,p:30,cb:39,f:34,fb:2,sg:8,sd:1060},
+  {n:"Jr. Cheeseburger", s:"1 burger", a:["junior cheeseburger"], c:290,p:15,cb:26,f:14,fb:1,sg:6,sd:610},
+  {n:"Baconator", s:"1 burger", a:["baconator"], c:950,p:59,cb:39,f:62,fb:2,sg:9,sd:1750},
+  {n:"Spicy Chicken Sandwich", s:"1 sandwich", a:[], c:490,p:27,cb:46,f:21,fb:2,sg:6,sd:1120},
+  {n:"Grilled Chicken Sandwich", s:"1 sandwich", a:[], c:350,p:33,cb:36,f:9,fb:2,sg:8,sd:820},
+  {n:"Chicken Nuggets (10 pc)", s:"10 nuggets", a:["nuggets"], c:450,p:24,cb:23,f:30,fb:1,sg:0,sd:930},
+  {n:"French Fries (medium)", s:"1 medium", a:["fries","medium fries"], c:350,p:5,cb:47,f:16,fb:4,sg:0,sd:330},
+  {n:"Chili (small)", s:"1 small", a:["chili","small chili"], c:240,p:17,cb:21,f:10,fb:6,sg:6,sd:810},
+  {n:"Frosty Chocolate (small)", s:"1 small", a:["frosty"], c:350,p:9,cb:58,f:9,fb:1,sg:47,sd:170},
+  {n:"Baked Potato (plain)", s:"1 potato", a:["baked potato"], c:270,p:7,cb:61,f:0,fb:7,sg:3,sd:40}]},
+ {chain:"Burger King", items:[
+  {n:"Whopper", s:"1 burger", a:["whopper"], c:670,p:31,cb:54,f:40,fb:3,sg:11,sd:980},
+  {n:"Whopper w/ Cheese", s:"1 burger", a:["whopper with cheese"], c:760,p:35,cb:55,f:47,fb:3,sg:12,sd:1410},
+  {n:"Cheeseburger", s:"1 burger", a:[], c:280,p:14,cb:27,f:13,fb:1,sg:7,sd:560},
+  {n:"Original Chicken Sandwich", s:"1 sandwich", a:["chicken sandwich"], c:660,p:24,cb:48,f:40,fb:2,sg:5,sd:1170},
+  {n:"Chicken Fries (9 pc)", s:"9 pieces", a:["chicken fries"], c:280,p:15,cb:20,f:16,fb:2,sg:0,sd:850},
+  {n:"Chicken Nuggets (8 pc)", s:"8 nuggets", a:["nuggets"], c:310,p:13,cb:20,f:20,fb:1,sg:0,sd:730},
+  {n:"French Fries (medium)", s:"1 medium", a:["fries","medium fries"], c:380,p:4,cb:53,f:17,fb:4,sg:1,sd:570},
+  {n:"Onion Rings (medium)", s:"1 medium", a:["onion rings"], c:410,p:5,cb:51,f:21,fb:3,sg:5,sd:1080}]},
+ {chain:"Taco Bell", items:[
+  {n:"Crunchy Taco", s:"1 taco", a:["crunchy taco","taco"], c:170,p:8,cb:13,f:9,fb:3,sg:1,sd:310},
+  {n:"Soft Taco", s:"1 taco", a:["soft taco"], c:180,p:9,cb:17,f:8,fb:2,sg:1,sd:500},
+  {n:"Doritos Locos Taco", s:"1 taco", a:["doritos taco"], c:170,p:8,cb:13,f:9,fb:3,sg:1,sd:360},
+  {n:"Bean Burrito", s:"1 burrito", a:["bean burrito"], c:350,p:13,cb:54,f:9,fb:11,sg:3,sd:1000},
+  {n:"Burrito Supreme (beef)", s:"1 burrito", a:["burrito supreme"], c:390,p:16,cb:51,f:14,fb:7,sg:4,sd:1110},
+  {n:"Crunchwrap Supreme", s:"1 crunchwrap", a:["crunchwrap"], c:530,p:16,cb:71,f:21,fb:5,sg:6,sd:1200},
+  {n:"Chicken Quesadilla", s:"1 quesadilla", a:["quesadilla"], c:510,p:27,cb:37,f:27,fb:3,sg:4,sd:1250},
+  {n:"Nachos BellGrande", s:"1 order", a:["nachos"], c:740,p:16,cb:82,f:38,fb:12,sg:5,sd:1050},
+  {n:"Cheesy Gordita Crunch", s:"1 item", a:["gordita"], c:500,p:20,cb:41,f:28,fb:4,sg:4,sd:850}]},
+ {chain:"Subway", items:[
+  {n:"Turkey Breast (6 inch)", s:"1 sub w/ veggies", a:["turkey sub","6 inch turkey"], c:250,p:18,cb:40,f:3,fb:5,sg:5,sd:640},
+  {n:"Italian B.M.T. (6 inch)", s:"1 sub", a:["bmt","italian sub"], c:390,p:19,cb:40,f:16,fb:5,sg:6,sd:1260},
+  {n:"Meatball Marinara (6 inch)", s:"1 sub", a:["meatball sub"], c:430,p:20,cb:46,f:18,fb:6,sg:8,sd:920},
+  {n:"Tuna (6 inch)", s:"1 sub", a:["tuna sub"], c:480,p:19,cb:39,f:25,fb:5,sg:5,sd:580},
+  {n:"Veggie Delite (6 inch)", s:"1 sub", a:["veggie sub"], c:200,p:9,cb:39,f:2,fb:5,sg:5,sd:280},
+  {n:"Steak & Cheese (6 inch)", s:"1 sub", a:["steak and cheese sub"], c:340,p:24,cb:40,f:10,fb:5,sg:6,sd:1060},
+  {n:"Chocolate Chip Cookie", s:"1 cookie", a:[], c:210,p:2,cb:30,f:10,fb:1,sg:18,sd:150}]},
+ {chain:"Chick-fil-A", items:[
+  {n:"Chicken Sandwich", s:"1 sandwich", a:["chicken sandwich"], c:440,p:28,cb:41,f:19,fb:1,sg:6,sd:1400},
+  {n:"Spicy Chicken Sandwich", s:"1 sandwich", a:[], c:450,p:28,cb:41,f:19,fb:1,sg:6,sd:1620},
+  {n:"Grilled Chicken Sandwich", s:"1 sandwich", a:[], c:320,p:29,cb:41,f:6,fb:3,sg:9,sd:680},
+  {n:"Nuggets (8 ct)", s:"8 nuggets", a:["nuggets"], c:250,p:27,cb:11,f:11,fb:0,sg:1,sd:1210},
+  {n:"Waffle Fries (medium)", s:"1 medium", a:["waffle fries","fries"], c:420,p:5,cb:45,f:24,fb:5,sg:1,sd:240},
+  {n:"Mac & Cheese (medium)", s:"1 medium", a:["mac and cheese"], c:450,p:20,cb:29,f:29,fb:1,sg:3,sd:1210},
+  {n:"Chicken Biscuit", s:"1 biscuit", a:["chicken biscuit"], c:460,p:23,cb:45,f:21,fb:2,sg:6,sd:1510},
+  {n:"Lemonade (medium)", s:"1 medium", a:["lemonade"], c:220,p:0,cb:58,f:0,fb:0,sg:55,sd:10}]},
+ {chain:"KFC", items:[
+  {n:"Original Recipe Breast", s:"1 piece", a:["fried chicken breast","chicken breast"], c:390,p:39,cb:11,f:21,fb:0,sg:0,sd:1190},
+  {n:"Original Recipe Drumstick", s:"1 piece", a:["drumstick"], c:130,p:12,cb:4,f:7,fb:0,sg:0,sd:380},
+  {n:"Original Recipe Thigh", s:"1 piece", a:["chicken thigh"], c:280,p:19,cb:8,f:19,fb:0,sg:0,sd:910},
+  {n:"Extra Crispy Tenders (3 pc)", s:"3 tenders", a:["chicken tenders","tenders"], c:390,p:26,cb:25,f:20,fb:1,sg:0,sd:1100},
+  {n:"Mashed Potatoes w/ Gravy", s:"1 side", a:["mashed potatoes and gravy"], c:130,p:2,cb:19,f:5,fb:1,sg:0,sd:500},
+  {n:"Cole Slaw", s:"1 side", a:["coleslaw"], c:170,p:1,cb:20,f:10,fb:2,sg:15,sd:180},
+  {n:"Biscuit", s:"1 biscuit", a:[], c:180,p:4,cb:23,f:8,fb:1,sg:2,sd:530},
+  {n:"Secret Recipe Fries", s:"1 order", a:["fries"], c:320,p:4,cb:41,f:15,fb:3,sg:0,sd:1040}]},
+ {chain:"Chipotle", items:[
+  {n:"Chicken Burrito Bowl (typical)", s:"1 bowl", a:["burrito bowl","chicken bowl"], c:700,p:45,cb:65,f:27,fb:13,sg:4,sd:1350},
+  {n:"Chicken Burrito (typical)", s:"1 burrito", a:["chicken burrito"], c:1000,p:50,cb:105,f:38,fb:15,sg:5,sd:2000},
+  {n:"Chicken Tacos (3)", s:"3 tacos", a:["chicken tacos"], c:550,p:38,cb:48,f:22,fb:6,sg:3,sd:1100},
+  {n:"Chips", s:"1 bag", a:["chips"], c:540,p:7,cb:73,f:25,fb:7,sg:1,sd:390},
+  {n:"Guacamole (side)", s:"4 oz", a:["guacamole","guac"], c:230,p:2,cb:8,f:22,fb:6,sg:1,sd:370}]},
+ {chain:"Starbucks", items:[
+  {n:"Caffè Latte (grande, 2%)", s:"16 oz", a:["latte","grande latte"], c:190,p:13,cb:19,f:7,fb:0,sg:18,sd:170},
+  {n:"Caramel Macchiato (grande)", s:"16 oz", a:["caramel macchiato"], c:250,p:10,cb:35,f:7,fb:0,sg:33,sd:150},
+  {n:"Caramel Frappuccino (grande)", s:"16 oz", a:["frappuccino"], c:380,p:5,cb:54,f:16,fb:0,sg:54,sd:230},
+  {n:"Cold Brew (black, grande)", s:"16 oz", a:["cold brew"], c:5,p:0,cb:0,f:0,fb:0,sg:0,sd:15},
+  {n:"Butter Croissant", s:"1 croissant", a:["croissant"], c:260,p:5,cb:27,f:15,fb:1,sg:6,sd:310},
+  {n:"Blueberry Muffin", s:"1 muffin", a:["muffin"], c:360,p:6,cb:50,f:15,fb:1,sg:27,sd:350},
+  {n:"Bacon & Gouda Sandwich", s:"1 sandwich", a:["bacon gouda"], c:360,p:18,cb:34,f:18,fb:1,sg:4,sd:800}]},
+ {chain:"Dunkin'", items:[
+  {n:"Glazed Donut", s:"1 donut", a:["glazed donut","donut"], c:240,p:4,cb:33,f:11,fb:1,sg:12,sd:270},
+  {n:"Boston Kreme Donut", s:"1 donut", a:["boston kreme"], c:300,p:4,cb:39,f:14,fb:1,sg:18,sd:340},
+  {n:"Plain Bagel w/ Cream Cheese", s:"1 bagel", a:["bagel with cream cheese"], c:490,p:13,cb:68,f:18,fb:2,sg:8,sd:830},
+  {n:"Bacon Egg & Cheese Croissant", s:"1 sandwich", a:["bacon egg and cheese"], c:560,p:20,cb:40,f:36,fb:1,sg:5,sd:1090},
+  {n:"Iced Coffee (medium, cream & sugar)", s:"24 oz", a:["iced coffee"], c:180,p:2,cb:28,f:7,fb:0,sg:26,sd:55},
+  {n:"Latte (medium)", s:"14 oz", a:["latte"], c:170,p:9,cb:16,f:8,fb:0,sg:15,sd:135}]},
+ {chain:"Pizza Hut", items:[
+  {n:"Pepperoni Pizza (1 slice, lg hand tossed)", s:"1 slice", a:["pepperoni pizza","slice of pepperoni"], c:330,p:15,cb:37,f:14,fb:2,sg:2,sd:810},
+  {n:"Cheese Pizza (1 slice, lg hand tossed)", s:"1 slice", a:["cheese pizza","slice of cheese pizza"], c:290,p:13,cb:37,f:11,fb:2,sg:2,sd:640},
+  {n:"Breadstick", s:"1 breadstick", a:["breadstick","breadsticks"], c:140,p:4,cb:19,f:5,fb:1,sg:1,sd:260}]},
+ {chain:"Domino's", items:[
+  {n:"Pepperoni Pizza (1 slice, lg hand tossed)", s:"1 slice", a:["pepperoni pizza"], c:300,p:12,cb:34,f:13,fb:2,sg:3,sd:680},
+  {n:"Cheese Pizza (1 slice, lg hand tossed)", s:"1 slice", a:["cheese pizza"], c:270,p:11,cb:34,f:10,fb:2,sg:3,sd:540}]},
+ {chain:"Popeyes", items:[
+  {n:"Chicken Sandwich (classic)", s:"1 sandwich", a:["chicken sandwich"], c:700,p:28,cb:50,f:42,fb:2,sg:7,sd:1440},
+  {n:"Spicy Chicken Sandwich", s:"1 sandwich", a:[], c:700,p:28,cb:50,f:42,fb:2,sg:8,sd:1470},
+  {n:"Handcrafted Tenders (3 pc)", s:"3 tenders", a:["tenders","chicken tenders"], c:440,p:34,cb:26,f:22,fb:1,sg:0,sd:1700},
+  {n:"Cajun Fries (regular)", s:"1 regular", a:["cajun fries","fries"], c:270,p:4,cb:33,f:14,fb:3,sg:0,sd:590},
+  {n:"Biscuit", s:"1 biscuit", a:[], c:260,p:4,cb:26,f:15,fb:1,sg:3,sd:520},
+  {n:"Red Beans & Rice (regular)", s:"1 regular", a:["red beans and rice"], c:230,p:8,cb:30,f:9,fb:5,sg:1,sd:620}]}
+];
 
-const ALIAS_INDEX = [];
-FOODS.forEach(food => food.a.forEach(al => ALIAS_INDEX.push({key: norm(al), toks: tokens(al), food})));
+/* ============ FOOD MATCHING ============ */
+const FILLER = new Set(["of","the","a","an","some","my","with","and","from","at","serving","order"]);
+function singular(w){
+  if (w === "fries") return "fry";
+  if (w.length > 4 && /(ch|sh|ss|x)es$/.test(w)) return w.slice(0,-2);
+  if (w.length > 3 && w.endsWith("s") && !w.endsWith("ss")) return w.slice(0,-1);
+  return w;
+}
+function norm(s){
+  return s.toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/)
+    .filter(w => w.length > 1 || /\d/.test(w))
+    .map(singular).join(" ");
+}
+function tokens(s){ return [...new Set(norm(s).split(" ").filter(w => w && !FILLER.has(w)))]; }
+
+let ALIAS_INDEX = [];
+function rebuildIndex(){
+  ALIAS_INDEX = [];
+  const push = (al, food, bonus) => {
+    const key = norm(al);
+    if (key) ALIAS_INDEX.push({key, toks: tokens(al), food, bonus: bonus || 0});
+  };
+  FOODS.forEach(f => f.a.forEach(al => push(al, f)));
+  // Chain-prefixed aliases get a small bonus so "small fry from Arby's"
+  // beats another chain's plain "small fry" alias.
+  RESTAURANTS.forEach(r => r.items.forEach(it => {
+    const food = restFood(r, it);
+    push(r.chain + " " + it.n, food, 5);
+    (it.a || []).forEach(al => { push(al, food); push(r.chain + " " + al, food, 5); });
+  }));
+  recipes.forEach(rc => {
+    const food = recipeFood(rc);
+    push(rc.name, food, 10);
+    push("my " + rc.name, food, 10);
+    push(rc.name + " recipe", food, 10);
+  });
+}
+function restFood(r, it){
+  return {n: it.n + " – " + r.chain, s: it.s,
+    c:it.c, p:it.p, cb:it.cb, f:it.f, fb:it.fb, sg:it.sg, sd:it.sd};
+}
+function recipeFood(rc){
+  const t = recipeTotals(rc);
+  const per = k => t[k] / rc.servings;
+  return {n: rc.name + " (my recipe)", s: "1 serving",
+    c:per("c"), p:per("p"), cb:per("cb"), f:per("f"), fb:per("fb"), sg:per("sg"), sd:per("sd")};
+}
+function recipeTotals(rc){
+  const t = {c:0,p:0,cb:0,f:0,fb:0,sg:0,sd:0};
+  rc.ingredients.forEach(ing => { for (const k in t) t[k] += ing[k]*ing.qty; });
+  return t;
+}
 
 function matchFood(query){
   const q = norm(query), qt = tokens(query);
   if (!qt.length) return null;
   let best = null, bestScore = 0;
-  for (const {key, toks, food} of ALIAS_INDEX){
+  for (const {key, toks, food, bonus} of ALIAS_INDEX){
     let score = 0;
     if (key === q) score = 100;
     else if (q.includes(key) || key.includes(q)) score = 75 - Math.abs(key.length - q.length);
@@ -396,6 +644,7 @@ function matchFood(query){
       const shared = toks.filter(t => qt.includes(t)).length;
       if (shared) score = 65 * (2*shared) / (toks.length + qt.length);
     }
+    if (score > 0) score += bonus;
     if (score > bestScore){ bestScore = score; best = food; }
   }
   return bestScore >= 40 ? best : null;
@@ -647,6 +896,158 @@ document.getElementById("exportBtn").addEventListener("click", () => {
 });
 function csvq(s){ return '"' + String(s).replace(/"/g,'""') + '"'; }
 
+/* ============ PANELS (restaurants & recipes) ============ */
+function togglePanel(btnId, panelId){
+  const btn = document.getElementById(btnId), panel = document.getElementById(panelId);
+  const show = panel.style.display === "none";
+  panel.style.display = show ? "block" : "none";
+  btn.classList.toggle("active", show);
+}
+document.getElementById("restBtn").addEventListener("click", () => togglePanel("restBtn","restPanel"));
+document.getElementById("recipeBtn").addEventListener("click", () => togglePanel("recipeBtn","recipePanel"));
+
+/* Restaurant menu picker */
+const chainPick = document.getElementById("chainPick");
+chainPick.innerHTML = RESTAURANTS.map((r,i) => '<option value="'+i+'">'+esc(r.chain)+'</option>').join("");
+chainPick.addEventListener("change", renderMenu);
+function renderMenu(){
+  const r = RESTAURANTS[chainPick.value];
+  const list = document.getElementById("menuList");
+  list.innerHTML = "";
+  r.items.forEach(it => {
+    const row = document.createElement("div");
+    row.className = "menu-item";
+    row.innerHTML = '<div class="info"><strong>' + esc(it.n) + '</strong><div class="cals">' +
+      esc(it.s) + " · " + it.c + " cal · " + it.f + "g fat · " + it.fb + 'g fiber</div></div>' +
+      '<button class="small-btn">➕ Add</button>';
+    row.querySelector("button").addEventListener("click", () => {
+      addEntry(restFood(r, it), 1);
+      setStatus("Added: " + it.n + " from " + r.chain, "ok");
+    });
+    list.appendChild(row);
+  });
+}
+
+/* ============ RECIPES ============ */
+const RECIPE_KEY = "foodTrackerRecipes";
+let recipes = JSON.parse(localStorage.getItem(RECIPE_KEY) || "[]");
+function saveRecipes(){
+  localStorage.setItem(RECIPE_KEY, JSON.stringify(recipes));
+  rebuildIndex();
+}
+
+function renderRecipes(){
+  const list = document.getElementById("recipeList");
+  if (!recipes.length){
+    list.innerHTML = '<div class="muted">No saved recipes yet. Click "New recipe", add your ingredients, and tell it how many servings the whole batch makes.</div>';
+    return;
+  }
+  list.innerHTML = "";
+  recipes.forEach(rc => {
+    const t = recipeTotals(rc);
+    const row = document.createElement("div");
+    row.className = "recipe-row";
+    row.innerHTML = '<div class="info"><strong>' + esc(rc.name) + '</strong><div class="cals">makes ' +
+      rc.servings + " servings · " + Math.round(t.c/rc.servings) + ' cal per serving</div></div>' +
+      '<label class="cals">Servings <input type="number" class="servings-inp srv" value="1" min="0.25" step="0.25"></label>' +
+      '<button class="small-btn ate">➕ I ate this</button>' +
+      '<button class="small-btn gray edit">Edit</button>' +
+      '<button class="small-btn red delR">Delete</button>';
+    row.querySelector(".ate").addEventListener("click", () => {
+      const n = Math.max(0.25, parseFloat(row.querySelector(".srv").value) || 1);
+      addEntry(recipeFood(rc), n);
+      setStatus("Added " + fmtQty(n) + " serving(s) of " + rc.name, "ok");
+    });
+    row.querySelector(".edit").addEventListener("click", () => openBuilder(rc));
+    row.querySelector(".delR").addEventListener("click", () => {
+      if (!confirm('Delete the recipe "' + rc.name + '"?')) return;
+      recipes = recipes.filter(x => x.id !== rc.id);
+      saveRecipes(); renderRecipes();
+    });
+    list.appendChild(row);
+  });
+}
+
+/* Recipe builder */
+let draftIngs = [], editingId = null;
+function openBuilder(rc){
+  document.getElementById("builder").style.display = "block";
+  draftIngs = rc ? rc.ingredients.map(i => Object.assign({}, i)) : [];
+  editingId = rc ? rc.id : null;
+  document.getElementById("rName").value = rc ? rc.name : "";
+  document.getElementById("rServings").value = rc ? rc.servings : 4;
+  renderIngs();
+  document.getElementById("rName").focus();
+}
+document.getElementById("newRecipeBtn").addEventListener("click", () => openBuilder(null));
+document.getElementById("cancelRecipe").addEventListener("click", () => {
+  document.getElementById("builder").style.display = "none";
+});
+
+document.getElementById("foodList").innerHTML = FOODS.map(f => '<option value="' + esc(f.n) + '">').join("");
+document.getElementById("addIng").addEventListener("click", addIngredient);
+document.getElementById("ingSearch").addEventListener("keydown", e => { if (e.key === "Enter") addIngredient(); });
+async function addIngredient(){
+  const box = document.getElementById("ingSearch");
+  const qty = Math.max(0.25, parseFloat(document.getElementById("ingQty").value) || 1);
+  const text = box.value.trim();
+  if (!text) return;
+  let food = matchFood(text);
+  if (!food){
+    setStatus('Looking up "' + text + '" online…', "");
+    try { food = await usdaLookup(text); } catch(err){ food = null; }
+  }
+  if (!food){ setStatus('Couldn’t find "' + text + '" — try a different name.', "err"); return; }
+  draftIngs.push({name: food.n, serving: food.s, qty,
+    c:food.c, p:food.p, cb:food.cb, f:food.f, fb:food.fb, sg:food.sg, sd:food.sd});
+  box.value = "";
+  document.getElementById("ingQty").value = 1;
+  setStatus("", "");
+  renderIngs();
+  box.focus();
+}
+function renderIngs(){
+  const list = document.getElementById("ingList");
+  list.innerHTML = draftIngs.length ? "" : '<div class="muted">No ingredients yet — add them above.</div>';
+  draftIngs.forEach((ing, i) => {
+    const row = document.createElement("div");
+    row.className = "ing-row";
+    row.innerHTML = '<div class="info">' + fmtQty(ing.qty) + " × " + esc(ing.name) +
+      ' <span class="cals">(' + esc(ing.serving) + " each · " + Math.round(ing.c*ing.qty) + ' cal)</span></div>' +
+      '<button class="small-btn red">✕</button>';
+    row.querySelector("button").addEventListener("click", () => { draftIngs.splice(i,1); renderIngs(); });
+    list.appendChild(row);
+  });
+  updateBuilderTotals();
+}
+function updateBuilderTotals(){
+  const servings = Math.max(1, parseFloat(document.getElementById("rServings").value) || 1);
+  let cals = 0;
+  draftIngs.forEach(g => { cals += g.c*g.qty; });
+  document.getElementById("builderTotals").textContent = draftIngs.length ?
+    "Whole recipe: " + Math.round(cals) + " cal → " + Math.round(cals/servings) + " cal per serving" : "";
+}
+document.getElementById("rServings").addEventListener("input", updateBuilderTotals);
+
+document.getElementById("saveRecipe").addEventListener("click", () => {
+  const name = document.getElementById("rName").value.trim();
+  const servings = Math.round(parseFloat(document.getElementById("rServings").value) || 0);
+  if (!name){ setStatus("Give the recipe a name first.", "err"); return; }
+  if (!draftIngs.length){ setStatus("Add at least one ingredient before saving.", "err"); return; }
+  if (servings < 1){ setStatus("How many servings does the whole recipe make?", "err"); return; }
+  const rc = {id: editingId || Date.now(), name, servings, ingredients: draftIngs};
+  recipes = recipes.filter(x => x.id !== rc.id);
+  recipes.push(rc);
+  saveRecipes();
+  document.getElementById("builder").style.display = "none";
+  renderRecipes();
+  setStatus('Saved "' + name + '" — log it with "I ate this" or by saying "one serving of ' + name + '".', "ok");
+});
+
+/* ============ START UP ============ */
+rebuildIndex();
+renderRecipes();
+renderMenu();
 render();
 </script>
 </body>
