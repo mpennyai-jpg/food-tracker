@@ -264,16 +264,7 @@
   </div>
 
   <div class="panel-btns">
-    <button id="restBtn">🍔 Restaurant Menus</button>
     <button id="recipeBtn">📖 My Recipes</button>
-  </div>
-
-  <div class="panel" id="restPanel" style="display:none">
-    <h2>Restaurant menus</h2>
-    <div style="margin-bottom:8px">
-      Restaurant: <select id="chainPick"></select>
-    </div>
-    <div id="menuList"></div>
   </div>
 
   <div class="panel" id="recipePanel" style="display:none">
@@ -454,7 +445,251 @@ const FOODS = [
  {n:"Ranch dressing", s:"2 tbsp", a:["ranch","ranch dressing"], c:129,p:0.4,cb:1.8,f:13.4,fb:0,sg:1.4,sd:270},
  {n:"Italian dressing", s:"2 tbsp", a:["italian dressing","salad dressing","dressing"], c:71,p:0.1,cb:3,f:6,fb:0,sg:2.4,sd:292},
  {n:"Olive oil", s:"1 tbsp", a:["olive oil","oil"], c:119,p:0,cb:0,f:13.5,fb:0,sg:0,sd:0},
- {n:"Hummus", s:"2 tbsp", a:["hummus"], c:70,p:2,cb:4,f:5,fb:1.5,sg:0,sd:130}
+ {n:"Hummus", s:"2 tbsp", a:["hummus"], c:70,p:2,cb:4,f:5,fb:1.5,sg:0,sd:130},
+ /* broths & soups */
+ {n:"Chicken broth/stock", s:"1 cup", a:["chicken broth","chicken stock","broth","stock","cup of broth","cup of chicken broth"], c:15,p:2,cb:1,f:0.5,fb:0,sg:0.5,sd:860},
+ {n:"Beef broth/stock", s:"1 cup", a:["beef broth","beef stock"], c:17,p:3,cb:0,f:0.5,fb:0,sg:0,sd:890},
+ {n:"Bone broth", s:"1 cup", a:["bone broth"], c:45,p:10,cb:0,f:0.5,fb:0,sg:0,sd:300},
+ {n:"Vegetable soup", s:"1 cup", a:["vegetable soup","veggie soup"], c:80,p:3,cb:13,f:1.5,fb:3,sg:4,sd:650},
+ {n:"Clam chowder", s:"1 cup", a:["clam chowder","chowder"], c:180,p:7,cb:17,f:9,fb:1,sg:1,sd:790},
+ {n:"Minestrone soup", s:"1 cup", a:["minestrone"], c:82,p:4,cb:11,f:2.5,fb:3,sg:3,sd:750},
+ {n:"Lentil soup", s:"1 cup", a:["lentil soup"], c:140,p:9,cb:20,f:2,fb:7,sg:2,sd:700},
+ {n:"Split pea soup", s:"1 cup", a:["split pea soup","pea soup"], c:165,p:9,cb:26,f:2,fb:5,sg:4,sd:700},
+ {n:"Broccoli cheddar soup", s:"1 cup", a:["broccoli cheddar soup","broccoli cheese soup"], c:230,p:9,cb:14,f:16,fb:2,sg:4,sd:900},
+ {n:"French onion soup", s:"1 cup", a:["french onion soup","onion soup"], c:220,p:8,cb:20,f:11,fb:2,sg:5,sd:1100},
+ {n:"Wonton soup", s:"1 cup", a:["wonton soup"], c:90,p:5,cb:10,f:3,fb:0.6,sg:1,sd:800},
+ {n:"Hot and sour soup", s:"1 cup", a:["hot and sour soup"], c:90,p:5,cb:10,f:3,fb:0.8,sg:2,sd:880},
+ {n:"Miso soup", s:"1 cup", a:["miso soup"], c:40,p:3,cb:5,f:1,fb:1,sg:1,sd:900},
+ {n:"Pho (beef)", s:"1 bowl", a:["pho","beef pho"], c:450,p:30,cb:55,f:10,fb:2,sg:5,sd:1500},
+ /* meats & poultry */
+ {n:"Ground turkey (93%)", s:"4 oz cooked", a:["ground turkey"], c:230,p:31,cb:0,f:11,fb:0,sg:0,sd:95},
+ {n:"Ground chicken", s:"4 oz cooked", a:["ground chicken"], c:190,p:27,cb:0,f:9,fb:0,sg:0,sd:85},
+ {n:"Ground pork", s:"4 oz cooked", a:["ground pork"], c:330,p:26,cb:0,f:24,fb:0,sg:0,sd:85},
+ {n:"Roasted turkey breast", s:"4 oz", a:["roasted turkey","turkey breast","thanksgiving turkey"], c:150,p:34,cb:0,f:1,fb:0,sg:0,sd:55},
+ {n:"Rotisserie chicken", s:"4 oz with skin", a:["rotisserie chicken"], c:210,p:25,cb:0,f:12,fb:0,sg:0,sd:350},
+ {n:"Chicken wings", s:"4 wings", a:["chicken wings","wings"], c:360,p:28,cb:0,f:26,fb:0,sg:0,sd:450},
+ {n:"Buffalo wings", s:"6 wings", a:["buffalo wings","hot wings"], c:570,p:42,cb:3,f:40,fb:0,sg:0,sd:1600},
+ {n:"Chicken tenders", s:"3 tenders", a:["chicken tenders","chicken strips","chicken fingers","tenders"], c:340,p:25,cb:20,f:17,fb:1,sg:0,sd:900},
+ {n:"Pork tenderloin", s:"4 oz cooked", a:["pork tenderloin","pork loin"], c:160,p:30,cb:0,f:4,fb:0,sg:0,sd:55},
+ {n:"Baby back ribs", s:"1/2 rack", a:["ribs","baby back ribs","pork ribs"], c:660,p:45,cb:18,f:44,fb:0,sg:15,sd:1100},
+ {n:"Brisket", s:"4 oz", a:["brisket","beef brisket"], c:280,p:28,cb:0,f:18,fb:0,sg:0,sd:60},
+ {n:"Pot roast", s:"4 oz with gravy", a:["pot roast","roast"], c:250,p:30,cb:3,f:12,fb:0,sg:1,sd:350},
+ {n:"Beef stew", s:"1 cup", a:["beef stew","stew"], c:235,p:16,cb:16,f:11,fb:3,sg:3,sd:600},
+ {n:"Meatballs", s:"3 meatballs", a:["meatballs","meatball"], c:230,p:15,cb:7,f:16,fb:1,sg:2,sd:430},
+ {n:"Corned beef", s:"4 oz", a:["corned beef"], c:285,p:21,cb:0,f:22,fb:0,sg:0,sd:1100},
+ {n:"Pulled pork (with BBQ sauce)", s:"1/2 cup", a:["pulled pork","bbq pork"], c:210,p:15,cb:14,f:10,fb:0,sg:12,sd:450},
+ {n:"Lamb chop", s:"1 chop", a:["lamb chop","lamb"], c:230,p:21,cb:0,f:16,fb:0,sg:0,sd:65},
+ {n:"Turkey burger (with bun)", s:"1 burger", a:["turkey burger"], c:370,p:28,cb:33,f:14,fb:2,sg:6,sd:600},
+ /* fish & seafood */
+ {n:"Tilapia", s:"1 fillet", a:["tilapia"], c:110,p:23,cb:0,f:2.5,fb:0,sg:0,sd:50},
+ {n:"Cod", s:"6 oz fillet", a:["cod","baked fish","white fish"], c:140,p:30,cb:0,f:1,fb:0,sg:0,sd:90},
+ {n:"Fish sticks", s:"5 sticks", a:["fish sticks"], c:250,p:11,cb:22,f:13,fb:1,sg:1,sd:380},
+ {n:"Fish and chips", s:"1 serving", a:["fish and chips","fried fish"], c:780,p:35,cb:75,f:40,fb:5,sg:2,sd:1300},
+ {n:"Fried shrimp", s:"6 large", a:["fried shrimp","breaded shrimp"], c:200,p:10,cb:12,f:12,fb:0.4,sg:0,sd:300},
+ {n:"Crab", s:"3 oz", a:["crab","crab meat","crab legs"], c:80,p:16,cb:0,f:1,fb:0,sg:0,sd:300},
+ {n:"Lobster", s:"3 oz", a:["lobster","lobster tail"], c:76,p:16,cb:0,f:0.7,fb:0,sg:0,sd:320},
+ {n:"Scallops", s:"6 large", a:["scallops"], c:120,p:20,cb:4,f:2,fb:0,sg:0,sd:400},
+ {n:"Crab cake", s:"1 cake", a:["crab cake"], c:160,p:11,cb:8,f:10,fb:0.3,sg:1,sd:380},
+ {n:"Sardines", s:"1 can", a:["sardines"], c:190,p:23,cb:0,f:11,fb:0,sg:0,sd:430},
+ {n:"Fish taco", s:"1 taco", a:["fish taco"], c:250,p:11,cb:25,f:12,fb:3,sg:2,sd:420},
+ /* breakfast */
+ {n:"Egg whites", s:"3 whites", a:["egg whites","egg white"], c:51,p:11,cb:0.7,f:0.2,fb:0,sg:0.7,sd:165},
+ {n:"Cheese omelet", s:"3-egg omelet", a:["omelet","omelette","cheese omelet"], c:410,p:26,cb:3,f:32,fb:0,sg:2,sd:700},
+ {n:"Veggie omelet", s:"3-egg omelet", a:["veggie omelet","vegetable omelet"], c:300,p:20,cb:7,f:22,fb:1.5,sg:4,sd:450},
+ {n:"French toast", s:"1 slice", a:["french toast"], c:150,p:5,cb:16,f:7,fb:0.7,sg:4,sd:290},
+ {n:"Breakfast burrito", s:"1 burrito", a:["breakfast burrito"], c:500,p:21,cb:40,f:28,fb:2,sg:2,sd:1100},
+ {n:"Breakfast sandwich", s:"1 sandwich", a:["breakfast sandwich","sausage egg and cheese","bacon egg and cheese"], c:520,p:18,cb:38,f:33,fb:1,sg:4,sd:1250},
+ {n:"Granola", s:"1/2 cup", a:["granola"], c:220,p:5,cb:32,f:8,fb:4,sg:11,sd:15},
+ {n:"Grits", s:"1 cup cooked", a:["grits","bowl of grits"], c:150,p:3,cb:31,f:1,fb:1,sg:0,sd:340},
+ {n:"Cream of wheat", s:"1 cup cooked", a:["cream of wheat"], c:130,p:4,cb:27,f:0.5,fb:1,sg:0,sd:140},
+ {n:"Cinnamon roll", s:"1 roll", a:["cinnamon roll","cinnamon bun"], c:420,p:6,cb:60,f:17,fb:2,sg:30,sd:340},
+ {n:"Danish", s:"1 pastry", a:["danish","cheese danish"], c:300,p:5,cb:34,f:16,fb:1,sg:17,sd:290},
+ {n:"Coffee cake", s:"1 piece", a:["coffee cake"], c:300,p:4,cb:40,f:14,fb:1,sg:22,sd:280},
+ {n:"Pop-Tart", s:"1 pastry", a:["pop tart","poptart"], c:200,p:2,cb:37,f:5,fb:0.5,sg:15,sd:170},
+ {n:"Yogurt parfait", s:"1 parfait", a:["yogurt parfait","parfait"], c:300,p:10,cb:50,f:6,fb:3,sg:35,sd:120},
+ {n:"Avocado toast", s:"1 slice", a:["avocado toast"], c:240,p:6,cb:22,f:15,fb:7,sg:2,sd:300},
+ /* dairy */
+ {n:"Cottage cheese (2%)", s:"1 cup", a:["cottage cheese"], c:180,p:24,cb:9,f:5,fb:0,sg:8,sd:700},
+ {n:"Mozzarella", s:"1 oz", a:["mozzarella","fresh mozzarella"], c:85,p:6,cb:1,f:6,fb:0,sg:0,sd:175},
+ {n:"Swiss cheese", s:"1 slice", a:["swiss cheese","swiss"], c:106,p:8,cb:1.5,f:8,fb:0,sg:0,sd:54},
+ {n:"American cheese", s:"1 slice", a:["american cheese"], c:65,p:3.5,cb:2,f:5,fb:0,sg:1,sd:300},
+ {n:"Provolone", s:"1 slice", a:["provolone"], c:98,p:7,cb:0.6,f:7.5,fb:0,sg:0,sd:245},
+ {n:"Parmesan (grated)", s:"2 tbsp", a:["parmesan","parmesan cheese"], c:45,p:4,cb:0.7,f:3,fb:0,sg:0,sd:180},
+ {n:"Feta", s:"1 oz", a:["feta","feta cheese"], c:75,p:4,cb:1,f:6,fb:0,sg:1,sd:320},
+ {n:"Half and half", s:"2 tbsp", a:["half and half"], c:40,p:1,cb:1,f:3.5,fb:0,sg:1,sd:10},
+ {n:"Heavy cream", s:"2 tbsp", a:["heavy cream","whipping cream","cream"], c:100,p:0.8,cb:0.8,f:11,fb:0,sg:0.8,sd:10},
+ {n:"Coffee creamer", s:"1 tbsp", a:["creamer","coffee creamer"], c:35,p:0,cb:5,f:1.5,fb:0,sg:5,sd:5},
+ {n:"Almond milk (unsweetened)", s:"1 cup", a:["almond milk"], c:30,p:1,cb:1,f:2.5,fb:0.5,sg:0,sd:170},
+ {n:"Oat milk", s:"1 cup", a:["oat milk"], c:120,p:3,cb:16,f:5,fb:2,sg:7,sd:100},
+ {n:"Soy milk", s:"1 cup", a:["soy milk"], c:100,p:7,cb:8,f:4,fb:1,sg:6,sd:90},
+ {n:"Chocolate milk", s:"1 cup", a:["chocolate milk"], c:210,p:8,cb:26,f:8,fb:1,sg:24,sd:150},
+ /* vegetables */
+ {n:"Spinach (raw)", s:"2 cups", a:["spinach","raw spinach"], c:14,p:1.7,cb:2.2,f:0.2,fb:1.3,sg:0.3,sd:47},
+ {n:"Cooked spinach", s:"1 cup", a:["cooked spinach","sauteed spinach"], c:41,p:5,cb:7,f:0.5,fb:4.3,sg:0.8,sd:126},
+ {n:"Kale", s:"2 cups raw", a:["kale","kale salad"], c:66,p:6,cb:12,f:1,fb:5,sg:3,sd:50},
+ {n:"Lettuce", s:"1 cup", a:["lettuce"], c:5,p:0.5,cb:1,f:0,fb:0.5,sg:0.5,sd:5},
+ {n:"Cucumber", s:"1/2 cup slices", a:["cucumber","cucumbers"], c:8,p:0.3,cb:2,f:0,fb:0.3,sg:1,sd:1},
+ {n:"Celery", s:"2 stalks", a:["celery"], c:13,p:0.6,cb:2.4,f:0.2,fb:1.3,sg:1.1,sd:64},
+ {n:"Bell pepper", s:"1 medium", a:["bell pepper","peppers","red pepper","green pepper"], c:25,p:1,cb:6,f:0.2,fb:2,sg:4,sd:3},
+ {n:"Mushrooms", s:"1 cup", a:["mushrooms","mushroom"], c:15,p:2.2,cb:2.3,f:0.2,fb:0.7,sg:1.4,sd:4},
+ {n:"Zucchini", s:"1 cup cooked", a:["zucchini"], c:27,p:2,cb:5,f:0.4,fb:1.8,sg:3,sd:5},
+ {n:"Cauliflower", s:"1 cup cooked", a:["cauliflower"], c:29,p:2.3,cb:5,f:0.6,fb:2.9,sg:2.6,sd:19},
+ {n:"Cauliflower rice", s:"1 cup", a:["cauliflower rice"], c:25,p:2,cb:5,f:0.3,fb:2,sg:2,sd:20},
+ {n:"Cabbage", s:"1 cup cooked", a:["cabbage"], c:34,p:1.9,cb:8,f:0.6,fb:2.8,sg:4,sd:12},
+ {n:"Brussels sprouts", s:"1 cup cooked", a:["brussels sprouts","brussel sprouts"], c:56,p:4,cb:11,f:0.8,fb:4,sg:2.7,sd:16},
+ {n:"Asparagus", s:"6 spears", a:["asparagus"], c:20,p:2.2,cb:3.7,f:0.2,fb:1.8,sg:1.2,sd:13},
+ {n:"Coleslaw", s:"1/2 cup", a:["coleslaw","cole slaw","slaw"], c:150,p:0.7,cb:13,f:11,fb:1.5,sg:11,sd:180},
+ {n:"Cooked onions", s:"1/2 cup", a:["onions","grilled onions","cooked onions"], c:46,p:1,cb:10,f:0.1,fb:1.5,sg:4.7,sd:3},
+ {n:"Corn (kernels)", s:"1 cup", a:["cup of corn","corn kernels"], c:143,p:5,cb:31,f:2,fb:3.6,sg:6.8,sd:23},
+ {n:"Potato salad", s:"1/2 cup", a:["potato salad"], c:180,p:2,cb:14,f:13,fb:1.5,sg:3,sd:330},
+ {n:"Macaroni salad", s:"1/2 cup", a:["macaroni salad","pasta salad"], c:180,p:3,cb:20,f:10,fb:1,sg:4,sd:360},
+ {n:"Edamame", s:"1 cup", a:["edamame"], c:190,p:17,cb:14,f:8,fb:8,sg:3,sd:10},
+ {n:"Pickle", s:"1 spear", a:["pickle","pickles","dill pickle"], c:4,p:0.2,cb:0.8,f:0.1,fb:0.3,sg:0.4,sd:280},
+ {n:"Olives", s:"10 olives", a:["olives","black olives","green olives"], c:40,p:0.3,cb:2,f:4,fb:1,sg:0,sd:300},
+ {n:"Beets", s:"1/2 cup", a:["beets"], c:37,p:1.4,cb:8.5,f:0.2,fb:1.7,sg:7,sd:65},
+ {n:"Butternut squash", s:"1 cup", a:["butternut squash","squash"], c:82,p:1.8,cb:22,f:0.2,fb:6.6,sg:4,sd:8},
+ {n:"Spaghetti squash", s:"1 cup", a:["spaghetti squash"], c:42,p:1,cb:10,f:0.4,fb:2.2,sg:3.9,sd:28},
+ /* beans & grains */
+ {n:"Kidney beans", s:"1 cup cooked", a:["kidney beans"], c:225,p:15,cb:40,f:0.9,fb:13,sg:0.6,sd:2},
+ {n:"Pinto beans", s:"1 cup cooked", a:["pinto beans"], c:245,p:15,cb:45,f:1.1,fb:15,sg:0.6,sd:2},
+ {n:"Chickpeas", s:"1 cup cooked", a:["chickpeas","garbanzo beans"], c:269,p:15,cb:45,f:4,fb:12.5,sg:8,sd:11},
+ {n:"Lentils", s:"1 cup cooked", a:["lentils"], c:230,p:18,cb:40,f:0.8,fb:15.6,sg:3.6,sd:4},
+ {n:"Refried beans", s:"1/2 cup", a:["refried beans"], c:110,p:6,cb:17,f:2,fb:5,sg:0.5,sd:440},
+ {n:"Quinoa", s:"1 cup cooked", a:["quinoa"], c:222,p:8,cb:39,f:3.6,fb:5.2,sg:1.6,sd:13},
+ {n:"Couscous", s:"1 cup cooked", a:["couscous"], c:176,p:6,cb:36,f:0.3,fb:2.2,sg:0.2,sd:8},
+ {n:"Egg noodles", s:"1 cup cooked", a:["egg noodles"], c:221,p:7,cb:40,f:3.3,fb:1.9,sg:0.7,sd:8},
+ {n:"Stuffing", s:"1/2 cup", a:["stuffing","dressing stuffing"], c:180,p:3,cb:22,f:9,fb:1,sg:2,sd:440},
+ {n:"Dinner roll", s:"1 roll", a:["dinner roll","roll","bread roll"], c:87,p:3,cb:15,f:2,fb:0.8,sg:1.5,sd:150},
+ {n:"Garlic bread", s:"1 slice", a:["garlic bread"], c:160,p:4,cb:19,f:8,fb:1,sg:1,sd:290},
+ {n:"Naan", s:"1 piece", a:["naan","naan bread"], c:260,p:9,cb:45,f:5,fb:2,sg:3,sd:420},
+ {n:"Pita bread", s:"1 pita", a:["pita","pita bread"], c:165,p:5.5,cb:33,f:0.7,fb:1.2,sg:0.8,sd:320},
+ /* entrees & takeout */
+ {n:"Chicken pot pie", s:"1 pie", a:["chicken pot pie","pot pie"], c:600,p:20,cb:57,f:33,fb:3,sg:6,sd:900},
+ {n:"Shepherd's pie", s:"1 cup", a:["shepherds pie"], c:300,p:18,cb:25,f:14,fb:3,sg:4,sd:550},
+ {n:"Chicken parmesan", s:"1 serving", a:["chicken parmesan","chicken parm"], c:550,p:45,cb:25,f:30,fb:2,sg:6,sd:1100},
+ {n:"Chicken alfredo", s:"1.5 cups", a:["chicken alfredo","fettuccine alfredo","alfredo"], c:700,p:35,cb:55,f:38,fb:3,sg:3,sd:1100},
+ {n:"Pesto pasta", s:"1 cup", a:["pesto pasta"], c:400,p:10,cb:45,f:20,fb:3,sg:2,sd:450},
+ {n:"Chicken stir fry", s:"1.5 cups", a:["stir fry","chicken stir fry","beef stir fry"], c:300,p:25,cb:15,f:15,fb:4,sg:7,sd:900},
+ {n:"Orange chicken", s:"1 cup", a:["orange chicken"], c:420,p:17,cb:45,f:18,fb:1,sg:20,sd:620},
+ {n:"General Tso's chicken", s:"1 cup", a:["general tso","general tsos chicken"], c:430,p:18,cb:42,f:19,fb:1,sg:17,sd:680},
+ {n:"Sweet and sour chicken", s:"1 cup", a:["sweet and sour chicken"], c:400,p:15,cb:45,f:17,fb:1,sg:22,sd:600},
+ {n:"Lo mein", s:"1 cup", a:["lo mein","chow mein"], c:280,p:10,cb:40,f:9,fb:2,sg:4,sd:700},
+ {n:"Egg roll", s:"1 roll", a:["egg roll","eggroll"], c:180,p:6,cb:20,f:9,fb:2,sg:3,sd:400},
+ {n:"Spring roll (fresh)", s:"1 roll", a:["spring roll"], c:100,p:4,cb:15,f:2.5,fb:1,sg:2,sd:180},
+ {n:"Dumplings", s:"4 dumplings", a:["dumplings","potstickers","gyoza"], c:240,p:10,cb:26,f:10,fb:1,sg:2,sd:500},
+ {n:"Pad thai", s:"1.5 cups", a:["pad thai"], c:600,p:22,cb:75,f:22,fb:3,sg:15,sd:1200},
+ {n:"Chicken curry", s:"1 cup", a:["curry","chicken curry"], c:300,p:22,cb:10,f:19,fb:2,sg:4,sd:600},
+ {n:"Chicken tikka masala", s:"1 cup", a:["tikka masala","butter chicken"], c:350,p:25,cb:12,f:22,fb:2,sg:5,sd:700},
+ {n:"Gyro", s:"1 gyro", a:["gyro"], c:590,p:25,cb:55,f:29,fb:3,sg:4,sd:1100},
+ {n:"Falafel", s:"4 balls", a:["falafel"], c:230,p:9,cb:22,f:12,fb:4,sg:1,sd:290},
+ {n:"Chicken kebab", s:"1 skewer", a:["kebab","kabob","chicken skewer"], c:180,p:26,cb:3,f:7,fb:0.5,sg:2,sd:300},
+ {n:"Sloppy joe", s:"1 sandwich", a:["sloppy joe"], c:390,p:20,cb:35,f:18,fb:2,sg:10,sd:900},
+ {n:"Philly cheesesteak", s:"1 sandwich", a:["cheesesteak","philly cheesesteak"], c:700,p:38,cb:50,f:38,fb:2,sg:6,sd:1300},
+ {n:"Reuben", s:"1 sandwich", a:["reuben"], c:640,p:32,cb:40,f:37,fb:4,sg:7,sd:1600},
+ {n:"Club sandwich", s:"1 sandwich", a:["club sandwich","turkey club"], c:590,p:32,cb:45,f:30,fb:3,sg:6,sd:1400},
+ {n:"Ham sandwich", s:"1 sandwich", a:["ham sandwich"], c:300,p:17,cb:35,f:10,fb:2,sg:5,sd:1100},
+ {n:"Ham and cheese sandwich", s:"1 sandwich", a:["ham and cheese","ham and cheese sandwich"], c:380,p:21,cb:35,f:17,fb:2,sg:5,sd:1300},
+ {n:"Tuna salad sandwich", s:"1 sandwich", a:["tuna sandwich","tuna salad sandwich"], c:415,p:20,cb:38,f:20,fb:2,sg:5,sd:700},
+ {n:"Chicken salad sandwich", s:"1 sandwich", a:["chicken salad sandwich"], c:450,p:22,cb:38,f:23,fb:2,sg:5,sd:650},
+ {n:"Egg salad sandwich", s:"1 sandwich", a:["egg salad sandwich"], c:400,p:14,cb:35,f:22,fb:2,sg:4,sd:600},
+ {n:"Tuna salad", s:"1/2 cup", a:["tuna salad"], c:190,p:16,cb:4,f:12,fb:0.5,sg:1,sd:400},
+ {n:"Chicken salad", s:"1/2 cup", a:["chicken salad"], c:210,p:16,cb:3,f:15,fb:0.5,sg:1,sd:350},
+ {n:"Egg salad", s:"1/2 cup", a:["egg salad"], c:220,p:10,cb:2,f:19,fb:0,sg:1,sd:350},
+ {n:"Chicken wrap", s:"1 wrap", a:["wrap","chicken wrap","chicken caesar wrap"], c:430,p:25,cb:42,f:18,fb:3,sg:3,sd:900},
+ {n:"Veggie burger", s:"1 patty", a:["veggie burger"], c:130,p:12,cb:10,f:5,fb:4,sg:1,sd:400},
+ {n:"Black bean burger", s:"1 patty", a:["black bean burger"], c:150,p:11,cb:18,f:4,fb:5,sg:1,sd:380},
+ {n:"Corn dog", s:"1 corn dog", a:["corn dog","corndog"], c:250,p:7,cb:26,f:13,fb:1,sg:7,sd:590},
+ {n:"Chicken fajitas", s:"2 fajitas", a:["fajitas","chicken fajitas"], c:550,p:35,cb:50,f:22,fb:5,sg:6,sd:1200},
+ {n:"Cheese enchilada", s:"1 enchilada", a:["enchilada","enchiladas"], c:220,p:9,cb:19,f:12,fb:2,sg:2,sd:550},
+ {n:"Tamale", s:"1 tamale", a:["tamale","tamales"], c:220,p:7,cb:20,f:12,fb:2,sg:1,sd:400},
+ {n:"Pizza rolls", s:"6 rolls", a:["pizza rolls"], c:220,p:8,cb:29,f:8,fb:1,sg:2,sd:410},
+ {n:"Tuna casserole", s:"1 cup", a:["casserole","tuna casserole","chicken casserole"], c:350,p:20,cb:28,f:17,fb:2,sg:4,sd:700},
+ {n:"Cobb salad", s:"1 entree salad", a:["cobb salad"], c:500,p:32,cb:10,f:37,fb:4,sg:4,sd:1200},
+ {n:"Greek salad", s:"1 salad", a:["greek salad"], c:210,p:6,cb:10,f:16,fb:3,sg:5,sd:600},
+ {n:"Chef salad", s:"1 entree salad", a:["chef salad"], c:320,p:25,cb:8,f:21,fb:2,sg:4,sd:900},
+ {n:"Chicken caesar salad (entree)", s:"1 entree salad", a:["chicken caesar"], c:470,p:35,cb:15,f:30,fb:3,sg:3,sd:1100},
+ /* snacks & sweets */
+ {n:"Oreos", s:"3 cookies", a:["oreo","oreos"], c:160,p:1,cb:25,f:7,fb:1,sg:14,sd:135},
+ {n:"Graham crackers", s:"2 full sheets", a:["graham crackers"], c:130,p:2,cb:22,f:3,fb:1,sg:8,sd:95},
+ {n:"Saltines", s:"5 crackers", a:["saltines","saltine crackers"], c:60,p:1.3,cb:11,f:1.3,fb:0.4,sg:0,sd:140},
+ {n:"Rice cake", s:"1 cake", a:["rice cake","rice cakes"], c:35,p:0.7,cb:7.3,f:0.3,fb:0.3,sg:0,sd:15},
+ {n:"Cheez-Its", s:"27 crackers", a:["cheez its","cheese crackers"], c:150,p:3,cb:17,f:8,fb:1,sg:0,sd:230},
+ {n:"Goldfish crackers", s:"55 pieces", a:["goldfish"], c:140,p:3,cb:20,f:5,fb:1,sg:0,sd:250},
+ {n:"Cupcake (frosted)", s:"1 cupcake", a:["cupcake"], c:300,p:3,cb:45,f:13,fb:1,sg:32,sd:220},
+ {n:"Cheesecake", s:"1 slice", a:["cheesecake"], c:400,p:7,cb:32,f:28,fb:0.4,sg:22,sd:330},
+ {n:"Pudding cup", s:"1 cup", a:["pudding"], c:120,p:1,cb:22,f:3,fb:0,sg:17,sd:160},
+ {n:"Jello cup", s:"1 cup", a:["jello"], c:70,p:1,cb:17,f:0,fb:0,sg:17,sd:70},
+ {n:"Applesauce", s:"1/2 cup", a:["applesauce","apple sauce"], c:50,p:0.2,cb:14,f:0.1,fb:1.3,sg:11,sd:2},
+ {n:"Fruit cup", s:"1 cup", a:["fruit cup"], c:70,p:0.5,cb:18,f:0,fb:1,sg:15,sd:5},
+ {n:"Raisins", s:"small box", a:["raisins"], c:129,p:1.3,cb:34,f:0.2,fb:1.6,sg:25,sd:5},
+ {n:"Dates", s:"3 medjool", a:["dates"], c:200,p:1.4,cb:54,f:0.3,fb:5,sg:48,sd:2},
+ {n:"Dried cranberries", s:"1/4 cup", a:["dried cranberries","craisins"], c:120,p:0,cb:33,f:0.3,fb:2,sg:26,sd:1},
+ {n:"Cashews", s:"1 oz", a:["cashews"], c:157,p:5,cb:9,f:12,fb:1,sg:1.7,sd:3},
+ {n:"Walnuts", s:"1 oz", a:["walnuts"], c:185,p:4.3,cb:3.9,f:18.5,fb:1.9,sg:0.7,sd:1},
+ {n:"Pecans", s:"1 oz", a:["pecans"], c:196,p:2.6,cb:3.9,f:20,fb:2.7,sg:1.1,sd:0},
+ {n:"Pistachios", s:"1 oz", a:["pistachios"], c:159,p:5.7,cb:7.7,f:12.8,fb:2.9,sg:2.2,sd:0},
+ {n:"Sunflower seeds", s:"1 oz", a:["sunflower seeds"], c:165,p:5.5,cb:6.8,f:14,fb:3,sg:0.9,sd:1},
+ {n:"Chia seeds", s:"2 tbsp", a:["chia seeds","chia"], c:138,p:4.7,cb:12,f:8.7,fb:9.8,sg:0,sd:5},
+ {n:"Flaxseed", s:"2 tbsp", a:["flaxseed","flax"], c:110,p:3.8,cb:6,f:8.7,fb:5.6,sg:0.3,sd:6},
+ {n:"Dark chocolate", s:"1 oz", a:["dark chocolate"], c:170,p:2.2,cb:13,f:12,fb:3.1,sg:7,sd:7},
+ {n:"M&Ms", s:"1 pack", a:["m and ms","mms"], c:240,p:2,cb:34,f:10,fb:1,sg:31,sd:30},
+ {n:"Snickers bar", s:"1 bar", a:["snickers"], c:250,p:4,cb:33,f:12,fb:1,sg:27,sd:120},
+ {n:"Reese's cups", s:"2 cups", a:["reeses","peanut butter cups"], c:210,p:5,cb:24,f:13,fb:1,sg:21,sd:150},
+ {n:"Gummy bears", s:"17 pieces", a:["gummy bears","gummies"], c:140,p:2,cb:33,f:0,fb:0,sg:21,sd:10},
+ {n:"Fruit snacks", s:"1 pouch", a:["fruit snacks"], c:80,p:1,cb:19,f:0,fb:0,sg:12,sd:10},
+ {n:"Popsicle", s:"1 pop", a:["popsicle","ice pop"], c:45,p:0,cb:11,f:0,fb:0,sg:8,sd:5},
+ {n:"Whipped cream", s:"2 tbsp", a:["whipped cream","cool whip"], c:15,p:0,cb:1,f:1,fb:0,sg:1,sd:0},
+ {n:"Honey", s:"1 tbsp", a:["honey"], c:64,p:0,cb:17,f:0,fb:0,sg:17,sd:0},
+ {n:"Maple syrup", s:"2 tbsp", a:["syrup","maple syrup"], c:104,p:0,cb:27,f:0,fb:0,sg:24,sd:2},
+ {n:"Sugar", s:"1 tsp", a:["sugar","teaspoon of sugar"], c:16,p:0,cb:4,f:0,fb:0,sg:4,sd:0},
+ /* fruits */
+ {n:"Mango", s:"1 cup", a:["mango"], c:99,p:1.4,cb:25,f:0.6,fb:2.6,sg:23,sd:2},
+ {n:"Pineapple", s:"1 cup", a:["pineapple"], c:82,p:0.9,cb:22,f:0.2,fb:2.3,sg:16,sd:2},
+ {n:"Kiwi", s:"1 fruit", a:["kiwi"], c:42,p:0.8,cb:10,f:0.4,fb:2.1,sg:6,sd:2},
+ {n:"Cantaloupe", s:"1 cup", a:["cantaloupe","melon"], c:54,p:1.3,cb:13,f:0.3,fb:1.4,sg:12,sd:25},
+ {n:"Honeydew", s:"1 cup", a:["honeydew"], c:61,p:0.9,cb:15,f:0.2,fb:1.4,sg:14,sd:31},
+ {n:"Cherries", s:"1 cup", a:["cherries"], c:87,p:1.5,cb:22,f:0.3,fb:2.9,sg:18,sd:0},
+ {n:"Plum", s:"1 fruit", a:["plum"], c:30,p:0.5,cb:8,f:0.2,fb:0.9,sg:7,sd:0},
+ {n:"Grapefruit", s:"1/2 fruit", a:["grapefruit"], c:52,p:0.9,cb:13,f:0.2,fb:2,sg:8,sd:0},
+ {n:"Raspberries", s:"1 cup", a:["raspberries"], c:64,p:1.5,cb:15,f:0.8,fb:8,sg:5.4,sd:1},
+ {n:"Blackberries", s:"1 cup", a:["blackberries"], c:62,p:2,cb:14,f:0.7,fb:7.6,sg:7,sd:1},
+ {n:"Clementine", s:"1 fruit", a:["clementine","cutie","mandarin"], c:35,p:0.6,cb:9,f:0.1,fb:1.3,sg:7,sd:1},
+ {n:"Fruit salad", s:"1 cup", a:["fruit salad","mixed fruit"], c:75,p:1,cb:19,f:0.2,fb:2.5,sg:15,sd:5},
+ /* drinks */
+ {n:"Gatorade", s:"20 oz", a:["gatorade","sports drink","powerade"], c:140,p:0,cb:36,f:0,fb:0,sg:34,sd:270},
+ {n:"Energy drink", s:"8 oz", a:["energy drink","red bull","monster"], c:110,p:1,cb:28,f:0,fb:0,sg:27,sd:105},
+ {n:"Sweet tea", s:"16 oz", a:["sweet tea"], c:180,p:0,cb:46,f:0,fb:0,sg:44,sd:10},
+ {n:"Lemonade", s:"16 oz", a:["lemonade"], c:200,p:0,cb:52,f:0,fb:0,sg:50,sd:15},
+ {n:"Hot chocolate", s:"1 cup", a:["hot chocolate","hot cocoa"], c:190,p:7,cb:27,f:6,fb:1,sg:24,sd:110},
+ {n:"Milkshake", s:"16 oz", a:["milkshake","shake"], c:580,p:13,cb:90,f:17,fb:0,sg:75,sd:280},
+ {n:"Root beer", s:"12 oz", a:["root beer"], c:152,p:0,cb:39,f:0,fb:0,sg:39,sd:48},
+ {n:"Coconut water", s:"1 cup", a:["coconut water"], c:46,p:1.7,cb:9,f:0.5,fb:2.6,sg:6,sd:252},
+ {n:"Kombucha", s:"1 cup", a:["kombucha"], c:30,p:0,cb:7,f:0,fb:0,sg:6,sd:10},
+ {n:"Liquor (shot)", s:"1.5 oz", a:["shot","vodka","whiskey","rum","tequila","bourbon"], c:97,p:0,cb:0,f:0,fb:0,sg:0,sd:0},
+ {n:"Margarita", s:"1 drink", a:["margarita"], c:280,p:0,cb:25,f:0,fb:0,sg:22,sd:10},
+ {n:"Hard seltzer", s:"12 oz", a:["hard seltzer","white claw","seltzer"], c:100,p:0,cb:2,f:0,fb:0,sg:1,sd:10},
+ /* sauces & dressings */
+ {n:"BBQ sauce", s:"2 tbsp", a:["bbq sauce","barbecue sauce"], c:58,p:0.3,cb:14,f:0.1,fb:0.3,sg:12,sd:350},
+ {n:"Hot sauce", s:"1 tsp", a:["hot sauce","tabasco","sriracha"], c:1,p:0,cb:0,f:0,fb:0,sg:0,sd:125},
+ {n:"Soy sauce", s:"1 tbsp", a:["soy sauce"], c:10,p:1.3,cb:1,f:0,fb:0.1,sg:0.1,sd:900},
+ {n:"Teriyaki sauce", s:"1 tbsp", a:["teriyaki sauce","teriyaki"], c:16,p:1,cb:3,f:0,fb:0,sg:2.5,sd:690},
+ {n:"Marinara sauce", s:"1/2 cup", a:["marinara","tomato sauce","pasta sauce","spaghetti sauce"], c:65,p:2,cb:10,f:2,fb:2,sg:6,sd:470},
+ {n:"Alfredo sauce", s:"1/4 cup", a:["alfredo sauce"], c:110,p:2,cb:3,f:10,fb:0,sg:1,sd:410},
+ {n:"Gravy", s:"1/4 cup", a:["gravy","brown gravy"], c:30,p:1,cb:4,f:1,fb:0.2,sg:0.3,sd:260},
+ {n:"Tartar sauce", s:"2 tbsp", a:["tartar sauce"], c:130,p:0.3,cb:4,f:12,fb:0.1,sg:2,sd:220},
+ {n:"Honey mustard", s:"2 tbsp", a:["honey mustard"], c:100,p:0.5,cb:8,f:7,fb:0.2,sg:7,sd:180},
+ {n:"Buffalo sauce", s:"2 tbsp", a:["buffalo sauce","wing sauce"], c:15,p:0,cb:2,f:1,fb:0,sg:1,sd:640},
+ {n:"Salsa", s:"2 tbsp", a:["salsa","pico de gallo"], c:10,p:0.5,cb:2,f:0,fb:0.5,sg:1,sd:190},
+ {n:"Queso dip", s:"1/4 cup", a:["queso","cheese dip"], c:110,p:4,cb:5,f:8,fb:0.5,sg:2,sd:470},
+ {n:"Guacamole", s:"2 tbsp", a:["guacamole","guac"], c:50,p:0.6,cb:3,f:4.5,fb:2,sg:0.3,sd:110},
+ {n:"Blue cheese dressing", s:"2 tbsp", a:["blue cheese dressing","blue cheese"], c:145,p:1,cb:1,f:15,fb:0,sg:1,sd:270},
+ {n:"Balsamic vinaigrette", s:"2 tbsp", a:["balsamic","vinaigrette","balsamic dressing"], c:90,p:0,cb:4,f:8,fb:0,sg:3,sd:240},
+ {n:"Thousand island dressing", s:"2 tbsp", a:["thousand island"], c:120,p:0.3,cb:5,f:11,fb:0.3,sg:4,sd:220},
+ {n:"Caesar dressing", s:"2 tbsp", a:["caesar dressing"], c:160,p:1,cb:1,f:17,fb:0,sg:1,sd:320},
+ {n:"Tzatziki", s:"2 tbsp", a:["tzatziki"], c:35,p:1,cb:1,f:3,fb:0,sg:1,sd:45},
+ {n:"Pesto", s:"2 tbsp", a:["pesto"], c:160,p:3,cb:2,f:15,fb:0.5,sg:0.5,sd:300},
+ {n:"Sour cream", s:"2 tbsp", a:["sour cream"], c:45,p:0.7,cb:1.3,f:4.5,fb:0,sg:1,sd:15},
+ {n:"Sausage gravy", s:"1/2 cup", a:["sausage gravy","biscuits and gravy topping"], c:190,p:6,cb:8,f:15,fb:0.2,sg:2,sd:480}
 ];
 
 /* ============ RESTAURANT MENUS ============
@@ -580,7 +815,7 @@ const RESTAURANTS = [
 ];
 
 /* ============ FOOD MATCHING ============ */
-const FILLER = new Set(["of","the","a","an","some","my","with","and","from","at","serving","order"]);
+const FILLER = new Set(["of","the","a","an","some","my","with","and","from","at","serving","order","cup","bowl","glass","plate"]);
 function singular(w){
   if (w === "fries") return "fry";
   if (w.length > 4 && /(ch|sh|ss|x)es$/.test(w)) return w.slice(0,-2);
@@ -632,6 +867,10 @@ function recipeTotals(rc){
   return t;
 }
 
+/* Only returns a food when confident. A query word the alias doesn't
+   contain usually changes the food entirely ("chicken STOCK" is not
+   "chicken"), so partial guesses are rejected and the caller falls
+   back to the online USDA lookup instead. */
 function matchFood(query){
   const q = norm(query), qt = tokens(query);
   if (!qt.length) return null;
@@ -639,15 +878,21 @@ function matchFood(query){
   for (const {key, toks, food, bonus} of ALIAS_INDEX){
     let score = 0;
     if (key === q) score = 100;
-    else if (q.includes(key) || key.includes(q)) score = 75 - Math.abs(key.length - q.length);
     else {
-      const shared = toks.filter(t => qt.includes(t)).length;
-      if (shared) score = 65 * (2*shared) / (toks.length + qt.length);
+      const sharedQ = qt.filter(t => toks.includes(t)).length;   // query words found in alias
+      const sharedA = toks.filter(t => qt.includes(t)).length;   // alias words found in query
+      if (sharedQ === qt.length){
+        // alias covers everything the user said (extra alias words are ok)
+        score = 85 - 3*(toks.length - sharedA);
+      } else if (sharedA === toks.length && toks.length >= 2 && (qt.length - sharedQ) <= 1){
+        // user said the whole multi-word alias plus one extra word
+        score = 60;
+      }
     }
     if (score > 0) score += bonus;
     if (score > bestScore){ bestScore = score; best = food; }
   }
-  return bestScore >= 40 ? best : null;
+  return bestScore >= 55 ? best : null;
 }
 
 /* ============ QUANTITY / PHRASE PARSING ============ */
@@ -668,18 +913,26 @@ function parseTranscript(text){
   const parts = t.split(/,| and also | and then | and /).map(s=>s.trim()).filter(Boolean);
   const items = [];
   for (let part of parts){
+    part = part.replace(/^(?:i (?:ate|had|drank|have|just had)|ate|had|drank)\s+/,"").trim();
+    // weights like "4 oz of venison" or "200 grams of rice" -> look up by exact weight
+    let m = part.match(/^(?:a|an\s+)?(\d+(?:\.\d+)?)\s*(ounces?|oz|grams?|g|pounds?|lbs?|kilograms?|kg)\s+(?:of\s+)?(.+)$/);
+    if (m){
+      const u = m[2];
+      const gramsPer = /^(ounces?|oz)$/.test(u) ? 28.35 :
+                       /^(pounds?|lbs?)$/.test(u) ? 453.6 :
+                       /^(kilograms?|kg)$/.test(u) ? 1000 : 1;
+      items.push({qty: 1, text: m[3].trim(), weightG: parseFloat(m[1]) * gramsPer});
+      continue;
+    }
     let qty = 1;
-    let m = part.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
+    m = part.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
     if (m){ qty = parseFloat(m[1]); part = m[2]; }
     else {
       m = part.match(/^(?:a|an)\s+(.*)$/);
       if (m) part = m[1];
     }
-    part = part.replace(/^(?:i (?:ate|had|drank|have|just had)|ate|had|drank)\s+/,"").trim();
+    part = part.trim();
     if (!part) continue;
-    // re-check for qty after verb: "I had 2 eggs"
-    m = part.match(/^(\d+(?:\.\d+)?)\s+(.*)$/);
-    if (m){ qty = parseFloat(m[1]); part = m[2]; }
     items.push({qty, text: part});
   }
   return items;
@@ -687,16 +940,31 @@ function parseTranscript(text){
 
 /* ============ USDA ONLINE FALLBACK ============ */
 async function usdaLookup(query){
-  const url = "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&pageSize=1&query=" + encodeURIComponent(query);
+  const url = "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&pageSize=10&query=" + encodeURIComponent(query);
   const res = await fetch(url);
+  if (res.status === 429) throw new Error("busy");
   if (!res.ok) throw new Error("USDA lookup failed");
   const data = await res.json();
-  const f = data.foods && data.foods[0];
-  if (!f) return null;
+  const foods = data.foods || [];
+  if (!foods.length) return null;
+  // Pick the candidate that best matches what was said, preferring
+  // generic USDA foods over random branded products.
+  const qt = tokens(query);
+  const typeRank = {"Survey (FNDDS)": 3, "SR Legacy": 2, "Foundation": 2, "Branded": 0};
+  let f = null, bestS = -Infinity;
+  for (const cand of foods){
+    const dt = tokens(cand.description || "");
+    const shared = qt.filter(t => dt.includes(t)).length;
+    const s = shared*10 + (typeRank[cand.dataType] || 0) - Math.min(dt.length, 10)*0.5;
+    if (s > bestS){ bestS = s; f = cand; }
+  }
   const get = names => {
     for (const fn of f.foodNutrients || []){
       const nm = (fn.nutrientName||"").toLowerCase();
-      if (names.some(n => nm.includes(n))) return fn.value || 0;
+      if (names.some(n => nm.includes(n))){
+        if (nm.includes("energy") && (fn.unitName||"").toUpperCase() !== "KCAL") continue;
+        return fn.value || 0;
+      }
     }
     return 0;
   };
@@ -736,21 +1004,36 @@ function addEntry(food, qty){
 async function handlePhrase(text){
   const items = parseTranscript(text);
   if (!items.length){ setStatus("I didn't catch any food in that — please try again.", "err"); return; }
-  const added = [], unknown = [];
+  const added = [];
   for (const it of items){
+    // Exact-weight items ("4 oz of venison") use the online per-100g data
+    // so the amount is precise.
+    if (it.weightG){
+      setStatus('Looking up "' + it.text + '" online…', "");
+      let food = null, busy = false;
+      try { food = await usdaLookup(it.text); }
+      catch(e){ busy = (e.message === "busy"); }
+      if (food){
+        addEntry(food, it.weightG/100);
+        added.push(Math.round(it.weightG) + " g of " + food.n + " (online)");
+      } else {
+        const lf = matchFood(it.text);
+        if (lf){ addEntry(lf, 1); added.push("1 standard serving of " + lf.n + " (couldn't look up exact weight)"); }
+        else added.push(busy ? "⏳ online database busy — try \"" + it.text + "\" again in a little while"
+                             : "❓ couldn't find \"" + it.text + "\"");
+      }
+      continue;
+    }
     const food = matchFood(it.text);
-    if (food){ addEntry(food, it.qty); added.push(fmtQty(it.qty) + " " + food.n); }
-    else unknown.push(it);
-  }
-  // Try online lookup for unknowns
-  for (const it of unknown){
+    if (food){ addEntry(food, it.qty); added.push(fmtQty(it.qty) + " " + food.n); continue; }
     setStatus("Looking up \"" + it.text + "\" online…", "");
     try {
-      const food = await usdaLookup(it.text);
-      if (food){ addEntry(food, it.qty); added.push(fmtQty(it.qty) + " " + food.n + " (online)"); }
+      const of_ = await usdaLookup(it.text);
+      if (of_){ addEntry(of_, it.qty); added.push(fmtQty(it.qty) + " " + of_.n + " (online)"); }
       else added.push("❓ couldn't find \"" + it.text + "\"");
     } catch(e){
-      added.push("❓ couldn't find \"" + it.text + "\" (no internet?)");
+      if (e.message === "busy") added.push("⏳ the online food database is busy — try \"" + it.text + "\" again in a little while");
+      else added.push("❓ couldn't find \"" + it.text + "\" (no internet?)");
     }
   }
   setStatus(added.length ? "Added: " + added.join(" · ") : "Nothing matched — try again.", added.length ? "ok" : "err");
@@ -903,30 +1186,7 @@ function togglePanel(btnId, panelId){
   panel.style.display = show ? "block" : "none";
   btn.classList.toggle("active", show);
 }
-document.getElementById("restBtn").addEventListener("click", () => togglePanel("restBtn","restPanel"));
 document.getElementById("recipeBtn").addEventListener("click", () => togglePanel("recipeBtn","recipePanel"));
-
-/* Restaurant menu picker */
-const chainPick = document.getElementById("chainPick");
-chainPick.innerHTML = RESTAURANTS.map((r,i) => '<option value="'+i+'">'+esc(r.chain)+'</option>').join("");
-chainPick.addEventListener("change", renderMenu);
-function renderMenu(){
-  const r = RESTAURANTS[chainPick.value];
-  const list = document.getElementById("menuList");
-  list.innerHTML = "";
-  r.items.forEach(it => {
-    const row = document.createElement("div");
-    row.className = "menu-item";
-    row.innerHTML = '<div class="info"><strong>' + esc(it.n) + '</strong><div class="cals">' +
-      esc(it.s) + " · " + it.c + " cal · " + it.f + "g fat · " + it.fb + 'g fiber</div></div>' +
-      '<button class="small-btn">➕ Add</button>';
-    row.querySelector("button").addEventListener("click", () => {
-      addEntry(restFood(r, it), 1);
-      setStatus("Added: " + it.n + " from " + r.chain, "ok");
-    });
-    list.appendChild(row);
-  });
-}
 
 /* ============ RECIPES ============ */
 const RECIPE_KEY = "foodTrackerRecipes";
@@ -1047,7 +1307,6 @@ document.getElementById("saveRecipe").addEventListener("click", () => {
 /* ============ START UP ============ */
 rebuildIndex();
 renderRecipes();
-renderMenu();
 render();
 </script>
 </body>
