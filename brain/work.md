@@ -15,8 +15,13 @@ Owner and sole appraiser, Pinewood Appraisal. Mostly refinances and purchases fo
 ## Coverage area
 
 - Preferred: Murfreesboro and Rutherford County.
-- Also: Lincoln, Franklin, Davidson, Bedford, Cannon, Coffee, Williamson counties.
+- Also (interview): Lincoln, Franklin, Davidson, Bedford, Cannon, Coffee, Williamson counties.
+- Website lists: Rutherford, Cannon, Coffee, Moore, Franklin, Lincoln, Marshall, Davidson. (as of 2026-09, unverified which list is current)
 - Most work is outside Rutherford County.
+
+## Public services (website, as of 2026-09)
+
+Appraisals for agents, homeowners, banks, and lenders on single-family, multi-family, townhomes, condos, HPRs, manufactured homes, and vacant land. Sketching service for GLA measurement.
 
 ## Product mix
 

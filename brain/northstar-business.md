@@ -1,12 +1,20 @@
-# Northstar
+# Northstar: Pinewood Appraisal
 
-One-line summary: Todd is an independent certified residential appraiser (Pinewood Appraisal, Murfreesboro TN) building a digital twin so Claude can absorb the typing, research, and writing that cap his practice at about 16 files a month.
+One-line summary: the business northstar. Pinewood Appraisal is Todd's one-person residential appraisal practice in Murfreesboro TN, and the goal is for Claude to absorb the typing, research, and writing that cap it at about 16 files a month. Personal life lives in `northstar-personal.md`.
 
 Status: first synthesis from the 2026-09-13 brain dump. Sections marked (open) are unanswered.
 
-## Who I am
+## What the business is
 
-Independent appraiser and owner of Pinewood Appraisal, working from home in Murfreesboro, Tennessee. Certified residential appraiser, licensed since 2020, on the FHA roster, waiting on a VA roster slot. Started as a trainee around 2005, spent 14 years at H&H Appraisal, and went out on my own in 2020. Twenty years in the business. I will drive farther than most appraisers will, and I would rather turn down a fight than take a file I can already see going sideways.
+Pinewood Appraisal, founded 2020, owner and sole appraiser Todd, working from home in Murfreesboro, Tennessee. Certified residential, licensed since 2020, on the FHA roster, waiting on a VA roster slot. Todd started as a trainee around 2005, spent 14 years at H&H Appraisal, and went out on his own in 2020.
+
+**Public positioning** (from pinewoodappraisal.com, as of 2026-09): appraisal services for real estate agents, homeowners, banks, and mortgage lenders. Property types listed: single-family, multi-family, townhomes, condos, HPRs (horizontal property regimes), manufactured homes, and vacant land. Also offers a sketching service for homeowners and agents who need an accurate gross living area measurement.
+
+**Coverage** as stated on the website: Rutherford, Cannon, Coffee, Moore, Franklin, Lincoln, Marshall, and Davidson counties. The interview also named Bedford and Williamson and did not mention Moore or Marshall. Treat the union as the working list and confirm which is current. (unverified)
+
+**Reality of the client mix**: mostly refinances and purchases for AMCs and big national banks. Very little of the private and agent work the website advertises. Named AMCs: Clarity, Class, Service, Trilateral.
+
+**Edge**: will drive 25 to 50 miles for a property when many appraisers will not, and would rather turn down a fight than take a file already going sideways.
 
 ## What I am building toward
 
@@ -62,3 +70,4 @@ Maintenance: revisit at least quarterly. When updating, note the date and what c
 
 - 2026-09-13: created as a skeleton.
 - 2026-09-13: first synthesis written from the Pinewood Appraisal brain dump and interview transcript.
+- 2026-09-13: renamed to the business northstar, added public positioning and coverage from the website, moved personal material to `northstar-personal.md`.
