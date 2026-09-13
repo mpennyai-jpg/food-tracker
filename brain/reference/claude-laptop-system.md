@@ -78,4 +78,4 @@ WORKUP.html has three parts with a sidebar nav: Part 1 skeleton from the order, 
 
 ## What this means for the brain
 
-The laptop system is the real twin. This repo does not yet hold the skill files themselves, only this index. Next step: copy `appraisal\`, `commands\`, and `skills\` into this repo so they are versioned and reachable from every session.
+The laptop system is the real twin. As of 2026-09-13 the files themselves are mirrored in this repo under `laptop/`: the global `CLAUDE.md`, `appraisal/` (minus the zoning PDFs, listed in `laptop/appraisal/zoning/PDFS-NOT-IN-REPO.md`), `commands/`, and `skills/`. The laptop copy is live; `laptop/` is the versioned mirror. When they differ, the laptop wins until Kenneth re-copies.
