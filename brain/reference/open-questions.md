@@ -15,5 +15,5 @@ One-line summary: things asked in the 2026-09-13 interview but not yet answered,
 11. Who he calls when a file gets weird; whether he has local peers.
 12. Things people often get wrong about him (for `identity.md`).
 
-13. Filenames and contents cut off in the pasted global CLAUDE.md: the workup 'how to start a file' reference, the remaining report-prep references, the full job folder path.
+13. Resolved 2026-09-13: filenames from the pasted CLAUDE.md are now complete via Penny's orientation file.
 14. Whether to move the laptop `.claude` appraisal system into this repo, and how to keep the laptop pointing at it.

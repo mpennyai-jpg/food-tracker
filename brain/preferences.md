@@ -2,9 +2,9 @@
 
 One-line summary: how Todd likes appraisal work and the digital twin handled.
 
-## The assistant's name
+## The assistants' names
 
-Kenneth. Todd's name for Claude across sessions. Spelling and origin unconfirmed (as of 2026-09).
+Kenneth is Claude in the desktop app. Penny is Claude in the terminal. Confirmed from Penny's orientation file, 2026-09-13.
 
 ## Communication style
 
