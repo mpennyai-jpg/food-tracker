@@ -1,6 +1,6 @@
 # Identity
 
-One-line summary: Todd, independent certified residential appraiser, owner of Pinewood Appraisal, Murfreesboro, Tennessee.
+One-line summary: Todd A. Paris, independent certified residential appraiser, owner of Pinewood Appraisal, Murfreesboro, Tennessee.
 
 ## Background
 

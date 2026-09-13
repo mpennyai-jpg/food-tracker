@@ -4,7 +4,7 @@ This repository is a personal knowledge base and digital twin. It is read at the
 
 ## Owner
 
-- Name: Todd
+- Name: Todd A. Paris
 - Pronouns: (fill in)
 - Location / timezone: Murfreesboro, Tennessee (US Central)
 - Summary: Independent certified residential appraiser and owner of Pinewood Appraisal. Twenty years in the business, on his own since 2020. Building this digital twin so Claude can take over data entry, research retention, and report writing and lift sustainable volume from 4 to 6 files a week. Read `brain/northstar-business.md` and `brain/northstar-personal.md` for the full picture.
@@ -38,6 +38,7 @@ This repository is a personal knowledge base and digital twin. It is read at the
 | `brain/decisions/` | Dated records of significant decisions and the reasoning |
 | `brain/journal/` | Dated entries: `YYYY-MM-DD.md`. Raw thoughts, what happened, mood |
 | `brain/reference/` | Facts, lists, procedures, anything worth looking up later |
+| `brain/reference/claude-laptop-system.md` | Index of the appraisal skill system on Todd's laptop. Read before doing any appraisal work. |
 | `brain/inbox/` | Unsorted dumps waiting to be filed |
 
 ## Conventions

@@ -4,7 +4,7 @@ One-line summary: things asked in the 2026-09-13 interview but not yet answered,
 
 1. **Murfreesboro / Rutherford County local knowledge.** Sides of town, which school zones actually move value, where the lines fall, what an out-of-town appraiser would get wrong. Highest-value gap; this knowledge exists nowhere else.
 2. Reconciliation walkthrough, first line to last.
-3. What is in the Claude starter file today and where it falls short.
+3. What is in the Claude starter file today and where it falls short. Partly answered: the laptop holds a full skill system, see `claude-laptop-system.md`. Still open: the contents of house-rules.md and the skill files themselves.
 4. Contractual AMC turn time versus his actual 6 days.
 5. Whether "nothing gets turned in early" is deliberate or queue mechanics.
 6. Whether Jae Davenport sends work or is a sounding board.
@@ -14,3 +14,6 @@ One-line summary: things asked in the 2026-09-13 interview but not yet answered,
 10. Confirmation of the "Rez Lascassas" tool name.
 11. Who he calls when a file gets weird; whether he has local peers.
 12. Things people often get wrong about him (for `identity.md`).
+
+13. Filenames and contents cut off in the pasted global CLAUDE.md: the workup 'how to start a file' reference, the remaining report-prep references, the full job folder path.
+14. Whether to move the laptop `.claude` appraisal system into this repo, and how to keep the laptop pointing at it.
