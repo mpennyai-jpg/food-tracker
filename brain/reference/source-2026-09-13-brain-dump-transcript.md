@@ -2,6 +2,14 @@
 
 One-line summary: raw text of the first brain dump PDF about Pinewood Appraisal. Kept verbatim as the source for the northstar and reference files. Do not edit; add corrections in the topic files.
 
+## What is this
+
+This is the founding document of the digital twin. On 2026-09-13 Todd A. Paris, owner of Pinewood Appraisal in Murfreesboro, Tennessee, recorded a spoken brain dump about his appraisal practice and then answered a set of interview questions. The recording was transcribed, the speech-to-text error that turned "appraiser" into "Fraser" was corrected, and the result was compiled into an 18-page PDF. The text below is that PDF extracted verbatim.
+
+It covers, in order: who Todd is and where he works; volume, capacity, and fees; product mix; the appraisal process from intake to delivery; Laura the data-entry contractor and the QC pass on her work; comp selection rules; adjustment method and the undocumented-override problem; time adjustments; narratives and writing; scheduling and drive time; revisions; on-site judgment; workfile and compliance; professional network; the vision for the digital twin; open questions; and the numbers worth pinning down.
+
+Everything in `brain/northstar-business.md`, `brain/work.md`, `brain/goals.md`, `brain/people/laura.md`, and the reference files on process, comps, adjustments, fees, scheduling, and compliance was synthesized from this text. When a topic file and this transcript disagree, the transcript is what Todd actually said and the topic file is the interpretation. Uncertain terms are marked [?] as in the original.
+
 ---
 
 Pinewood Appraisal — Brain
