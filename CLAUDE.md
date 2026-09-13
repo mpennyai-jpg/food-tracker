@@ -4,10 +4,10 @@ This repository is a personal knowledge base and digital twin. It is read at the
 
 ## Owner
 
-- Name: (fill in)
+- Name: Todd
 - Pronouns: (fill in)
-- Location / timezone: (fill in)
-- One-paragraph summary of who I am and what I care about: (fill in)
+- Location / timezone: Murfreesboro, Tennessee (US Central)
+- Summary: Independent certified residential appraiser and owner of Pinewood Appraisal. Twenty years in the business, on his own since 2020. Building this digital twin so Claude can take over data entry, research retention, and report writing and lift sustainable volume from 4 to 6 files a week. Read `brain/northstar.md` for the full picture.
 
 ## How Claude should behave here
 
