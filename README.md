@@ -7,7 +7,7 @@ A personal knowledge base designed to be read by Claude Code in any session.
 1. Install Claude Code if you have not already: https://code.claude.com/docs/en/overview
 2. Clone this repo:
    ```
-   git clone https://github.com/mpennyai-jpg/food-tracker.git second-brain
+   git clone https://github.com/mpennyai-jpg/second-brain.git
    cd second-brain
    ```
 3. Start Claude inside the folder:
