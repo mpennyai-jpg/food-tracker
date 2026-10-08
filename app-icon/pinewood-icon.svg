@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Pinewood Appraisal">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#17303c"/>
+      <stop offset="1" stop-color="#0d1a22"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="10" y="10" width="492" height="492" rx="104" fill="none" stroke="#2dd4bf" stroke-opacity="0.22" stroke-width="6"/>
+
+  <!-- house -->
+  <path d="M74 250 L256 104 L438 250" fill="none" stroke="#e8fbf7" stroke-width="30"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M116 236 V404 H396 V236" fill="none" stroke="#e8fbf7" stroke-width="30"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- pine tree -->
+  <g fill="#2dd4bf">
+    <path d="M256 196 L312 268 H200 Z"/>
+    <path d="M256 250 L330 332 H182 Z"/>
+    <rect x="238" y="320" width="36" height="62" rx="8"/>
+  </g>
+</svg>
