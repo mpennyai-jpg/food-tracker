@@ -1,0 +1,57 @@
+Stealie LOVE medallion — print files
+====================================
+
+Traced from a sticker on Todd's car window. 150 mm across, 3.2 mm thick,
+flat-backed. Prints face up on the bed. No supports, no brim.
+
+PRINT THIS
+----------
+  stealie_medallion_150mm_multicolour.3mf
+
+One object, five parts, colours already assigned. Open it, map each part to a
+real filament, slice.
+
+  Base disc        black
+  Black line art   black
+  White            white or bone
+  Blue             cornflower blue
+  Pink             dusty rose / light mauve
+
+  Layer height  0.10 - 0.16 mm
+  Nozzle        0.4 mm or finer
+  Walls 2 / top 5 / infill 15%
+  Prime tower ON. This changes colour on nearly every layer of the top
+  0.8 mm, so expect a lot of purge.
+
+The parts are built so the black line art overlaps its neighbours by about
+0.12 mm. That's deliberate - it closes every seam so no base colour shows
+through between regions. If your slicer asks about overlapping parts, let the
+black win.
+
+IF THE 3MF WON'T CARRY THE COLOURS
+-----------------------------------
+Some slicers drop 3MF material assignments. Same five parts are in
+multicolour_stl_fallback/ as STLs:
+
+  Load 01_base_disc.stl first, then add the other four AS PARTS OF THAT SAME
+  OBJECT - Orca/Bambu: right-click > Add part. PrusaSlicer: right-click >
+  Add part > Load. Cura: select all > Merge models.
+  They share an origin, so do NOT re-centre them individually.
+  Then assign a filament per part.
+
+  01b_base_disc_with_keyring_loop.stl swaps in for the plain base if a hanging
+  loop is wanted. Use one or the other, not both.
+
+SINGLE-COLOUR FALLBACK (only if the colour print is a pain)
+------------------------------------------------------------
+  single_colour_fallback/B_raised_line_art_150mm.stl
+
+Same artwork as a terraced relief, one filament, 3.6 mm thick. If you print
+this one instead, the layer height MUST divide 0.4 mm evenly - use 0.1, 0.2 or
+0.4. Not 0.15, not 0.3; the terraces are 0.4 mm apart and those heights round
+two levels onto the same layer and flatten it out. Turn on Arachne
+(variable-width perimeters) so the finest line work isn't dropped.
+
+preview/ shows what it should come out looking like.
+
+The art is Grateful Dead "Steal Your Face" - one-off for Todd, not for sale.
