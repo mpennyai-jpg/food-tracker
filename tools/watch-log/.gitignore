@@ -1,0 +1,9 @@
+# Build output — regenerate with: python3 build.py && python3 assemble.py
+watch-log.html
+todd-watch-log.html
+preview.html
+
+# Verification screenshots and throwaway test harnesses
+*.png
+*test*.js
+shot*.js

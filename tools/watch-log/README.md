@@ -20,6 +20,11 @@ six individual rating captures dated 2026-10-18.
     python3 build.py        # data.json
     python3 assemble.py     # watch-log.html + todd-watch-log.html
 
+Both HTML files are build output and are gitignored. `watch-log.html` is what
+gets published as the artifact; `todd-watch-log.html` is the standalone copy
+that opens straight from disk. Source of truth is the .psv files plus
+`posters.json`.
+
 ## Posters
 
 Claude artifacts block images from outside sites, so a shared page can only
@@ -32,3 +37,12 @@ so a session that began before those domains were allowed cannot reach them —
 start a new session instead.
 
     python3 embed_posters.py   # writes posters.json, prints hit count and payload size
+
+It runs a preflight against the API and one real image before fetching all 253,
+so a refusal is reported immediately rather than as 253 separate misses. The
+User-Agent must carry a contact address or Wikimedia answers 403 to everything.
+
+As of 2026-11-01, 242 of 253 titles have a poster. The other eleven: nine real
+shows whose search string finds the wrong article, and two fragments from the
+source notes that are not real titles (Terminator "Redemption", Star Wars
+"Blonde killer").
