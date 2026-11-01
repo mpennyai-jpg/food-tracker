@@ -1,0 +1,89 @@
+"""Fetch each poster from Wikipedia, shrink it, and store it as a data URI.
+Run only once en.wikipedia.org and upload.wikimedia.org are allowed."""
+import base64, io, json, os, sys, urllib.parse, urllib.request
+from concurrent.futures import ThreadPoolExecutor
+from PIL import Image
+
+BASE = os.path.dirname(os.path.abspath(__file__))
+UA = "ToddWatchLog/1.0 (personal watch list; contact via Claude Code session)"
+W, H, QUALITY = 124, 186, 72          # 2x the 3.8rem display slot
+API = "https://en.wikipedia.org/w/api.php"
+
+
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        return r.read()
+
+
+def thumb_url(query):
+    qs = urllib.parse.urlencode({
+        "action": "query", "format": "json", "generator": "search",
+        "gsrsearch": query, "gsrlimit": "1",
+        "prop": "pageimages", "piprop": "thumbnail", "pithumbsize": "400",
+    })
+    pages = (json.loads(get(API + "?" + qs)).get("query") or {}).get("pages") or {}
+    for p in pages.values():
+        src = (p.get("thumbnail") or {}).get("source")
+        if src:
+            return src
+    return None
+
+
+def to_data_uri(raw):
+    im = Image.open(io.BytesIO(raw))
+    im = im.convert("RGB")
+    # cover-crop to a 2:3 poster box, matching the CSS object-fit
+    scale = max(W / im.width, H / im.height)
+    im = im.resize((max(1, round(im.width * scale)), max(1, round(im.height * scale))), Image.LANCZOS)
+    left, top = (im.width - W) // 2, (im.height - H) // 2
+    im = im.crop((left, top, left + W, top + H))
+    buf = io.BytesIO()
+    im.save(buf, "JPEG", quality=QUALITY, optimize=True, progressive=True)
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+def one(item):
+    for q in [item["q"], item.get("q2")]:
+        if not q:
+            continue
+        try:
+            src = thumb_url(q)
+            if src:
+                return item["q"], to_data_uri(get(src)), item["t"]
+        except Exception as e:
+            print("  ! %s (%s): %s" % (item["t"], q, e), file=sys.stderr)
+    return item["q"], None, item["t"]
+
+
+def main():
+    d = json.load(open(os.path.join(BASE, "data.json"), encoding="utf-8"))
+    items, seen = [], set()
+    for grp in d["movies"] + d["tv"]:
+        for it in grp["items"]:
+            if it["q"] not in seen:
+                seen.add(it["q"]); items.append(it)
+    for it in d["queue"]:
+        if it["q"] not in seen:
+            seen.add(it["q"]); items.append(it)
+
+    out, misses = {}, []
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        for i, (q, uri, title) in enumerate(ex.map(one, items), 1):
+            if uri:
+                out[q] = uri
+            else:
+                misses.append(title)
+            if i % 25 == 0:
+                print("  %d/%d" % (i, len(items)))
+
+    json.dump(out, open(os.path.join(BASE, "posters.json"), "w"), ensure_ascii=False)
+    size = sum(len(v) for v in out.values())
+    print("\nposters embedded: %d of %d" % (len(out), len(items)))
+    print("payload: %.1f MB" % (size / 1e6))
+    if misses:
+        print("no match (%d): %s" % (len(misses), ", ".join(misses)))
+
+
+if __name__ == "__main__":
+    main()

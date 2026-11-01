@@ -1,0 +1,46 @@
+<div class="wrap">
+<header class="mast">
+  <p class="eyebrow">From the brain &middot; rated out of 5</p>
+  <h1>Todd's Watch Log</h1>
+  <p class="standfirst">Every film and series Todd has put a number on, pulled from his own notes: the <b>Movies</b> email of 23 September 2026, the <b>Tv shows</b> notepad of 17 October, and the ratings he added by hand through 18 October. Grouped by medium, then by genre, then ranked by score.</p>
+  <ul class="tallies">
+    <li><b id="t-mov">0</b> movies</li>
+    <li><b id="t-tv">0</b> series</li>
+    <li><b id="t-avg">0</b> average score</li>
+    <li><b id="t-queue">0</b> still to watch</li>
+  </ul>
+</header>
+
+<nav class="genres" id="genrenav" aria-label="Jump to a genre"></nav>
+</div>
+
+<div class="rail"><div class="wrap">
+  <label for="q">Find</label>
+  <input id="q" type="search" placeholder="Title, genre or a word in the description" autocomplete="off">
+  <span id="hits"></span><span id="pcount" class="pcount" hidden></span>
+  <nav class="jump"><a href="#genrenav">Genres</a><a href="#movies">Movies</a><a href="#television">TV</a><a href="#queue">Queue</a></nav>
+</div></div>
+
+<div class="wrap">
+  <section class="medium" id="movies">
+    <div class="medium-head"><h2>Movies</h2><span class="n" id="n-mov"></span></div>
+    <div id="list-mov"></div>
+  </section>
+
+  <section class="medium" id="television">
+    <div class="medium-head"><h2>Television</h2><span class="n" id="n-tv"></span></div>
+    <div id="list-tv"></div>
+  </section>
+
+  <section class="medium" id="queue">
+    <div class="medium-head"><h2>Not yet watched</h2><span class="n" id="n-queue"></span></div>
+    <p class="note">Logged in the brain with no score: titles noted in passing, and the ones other people have pushed on him.</p>
+    <div id="list-queue"></div>
+  </section>
+
+  <footer>
+    <p>Scores are Todd's own, on a 1 to 5 scale. Two titles he rated twice carry the average of both. <em>Ice Road</em> sits at .02 because that is exactly what he wrote beside it, with the verdict &ldquo;bad&rdquo;. A handful of entries are still unresolved in the brain &mdash; <em>Boom</em>, &ldquo;Secret silence&rdquo;, &ldquo;Stuart&rdquo;, the Star Wars &ldquo;blonde killer&rdquo; &mdash; and are listed exactly as he wrote them.</p>
+    <p>__POSTERNOTE__</p>
+    <p class="sig">Pinewood &middot; compiled 1 November 2026</p>
+  </footer>
+</div>
