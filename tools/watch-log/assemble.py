@@ -2,18 +2,22 @@ head=open('page_head.html',encoding='utf-8').read()
 body=open('body.html',encoding='utf-8').read()
 js=open('script.js',encoding='utf-8').read()
 data=open('data.json',encoding='utf-8').read().replace('</','<\\/')
+import os
+posters = ''
+if os.path.exists('posters.json'):
+    posters = open('posters.json',encoding='utf-8').read().replace('</','<\\/')
 
-ART_NOTE = ('Poster artwork does not load inside this shared page: the Claude artifact '
-            'sandbox blocks images and requests from outside sites, so every title shows '
-            'its monogram here. The downloadable copy of this file pulls the real posters '
-            'from Wikipedia when you open it in a browser.')
-STD_NOTE = ('Poster artwork is pulled from Wikipedia as you scroll, so the page needs a '
-            'connection the first time you open it. They are cached in this browser after '
-            'that. A title with no matching Wikipedia article keeps its monogram.')
+NOTE = ('Poster artwork comes from Wikipedia and is built into this page, so it needs '
+        'no connection to show. Eleven titles keep a monogram: nine have no matching '
+        'Wikipedia article under the name used here, and two are the unresolved '
+        'fragments from the source notes.')
+ART_NOTE = STD_NOTE = NOTE
 
 def page(note):
-    return body.replace('__POSTERNOTE__', note) + \
-           "\n<script>\nwindow.__WATCHLOG__ = " + data + ";\n</script>\n<script>\n" + js + "\n</script>\n"
+    blocks = "\n<script>\nwindow.__WATCHLOG__ = " + data + ";\n</script>\n"
+    if posters:
+        blocks += "<script>\nwindow.__POSTERS__ = " + posters + ";\n</script>\n"
+    return body.replace('__POSTERNOTE__', note) + blocks + "<script>\n" + js + "\n</script>\n"
 
 open('watch-log.html','w',encoding='utf-8').write(head + "\n" + page(ART_NOTE))
 

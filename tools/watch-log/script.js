@@ -1,5 +1,6 @@
 (function(){
   "use strict";
+  var BAKED = window.__POSTERS__ || {};      // posters embedded at build time
   var CACHE_KEY = "wl.posters.v2";
   var cache = {};
   try { cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}") || {}; } catch (e) { cache = {}; }
@@ -165,14 +166,14 @@
   // ---- poster lookup, in the viewer's browser ----
   var queue = [], active = 0, MAX = 4, found = 0, tried = 0;
   var pcount = document.getElementById("pcount");
-  function tally(hit){
+  var tally = function(hit){
     tried++;
     if (hit) found++;
     if (pcount && found) {
       pcount.hidden = false;
       pcount.textContent = found + " posters";
     }
-  }
+  };
 
   function pump(){
     while (active < MAX && queue.length){
@@ -213,6 +214,7 @@
 
   function fill(box){
     var q = decodeURIComponent(box.dataset.q || "");
+    if (BAKED[q]){ paint(box, BAKED[q]); return Promise.resolve(); }
     var q2 = decodeURIComponent(box.dataset.q2 || "");
     if (!q) return Promise.resolve();
     if (Object.prototype.hasOwnProperty.call(cache, q)){
@@ -228,6 +230,14 @@
       if (src) paint(box, src);
       tally(!!src);
     }).catch(function(){ tally(false); });
+  }
+
+  // when posters ship with the page, say so once instead of counting them in
+  var bakedCount = Object.keys(BAKED).length;
+  if (bakedCount && pcount){
+    pcount.hidden = false;
+    pcount.textContent = bakedCount + " posters";
+    tally = function(){};
   }
 
   var boxes = document.querySelectorAll(".art");
