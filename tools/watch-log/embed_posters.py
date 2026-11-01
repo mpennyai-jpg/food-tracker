@@ -1,6 +1,6 @@
 """Fetch each poster from Wikipedia, shrink it, and store it as a data URI.
 Run only once en.wikipedia.org and upload.wikimedia.org are allowed."""
-import base64, io, json, os, sys, urllib.parse, urllib.request
+import base64, io, json, os, sys, time, urllib.error, urllib.parse, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 
@@ -20,18 +20,30 @@ def get(url):
         "Accept": "application/json,image/*;q=0.9,*/*;q=0.8",
         "Accept-Encoding": "identity",
     })
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return r.read()
-    except urllib.error.HTTPError as e:
-        body = ""
+    for attempt in range(6):
         try:
-            body = e.read()[:200].decode("utf-8", "replace")
-        except Exception:
-            pass
-        raise RuntimeError("HTTP %s from %s :: %s" % (e.code, url.split("?")[0], body))
-    except urllib.error.URLError as e:
-        raise RuntimeError("cannot reach %s :: %s" % (url.split("?")[0], e.reason))
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < 5:
+                ra = e.headers.get("Retry-After") or ""
+                wait = int(ra) if ra.isdigit() else 2 ** (attempt + 1)
+                time.sleep(min(wait, 60))
+                continue
+            _raise_http(e, url)
+        except urllib.error.URLError as e:
+            raise RuntimeError("cannot reach %s :: %s" % (url.split("?")[0], e.reason))
+
+
+def _raise_http(e, url):
+    body = ""
+    try:
+        body = e.read()[:200].decode("utf-8", "replace")
+        if body.lstrip().startswith("<"):
+            body = "(html error page)"
+    except Exception:
+        pass
+    raise RuntimeError("HTTP %s from %s :: %s" % (e.code, url.split("?")[0], body))
 
 
 def preflight():
@@ -61,6 +73,7 @@ def thumb_url(query):
         "action": "query", "format": "json", "generator": "search",
         "gsrsearch": query, "gsrlimit": "1",
         "prop": "pageimages", "piprop": "thumbnail", "pithumbsize": "400",
+        "pilicense": "any",  # posters are non-free; default "free" hides them
     })
     pages = (json.loads(get(API + "?" + qs)).get("query") or {}).get("pages") or {}
     for p in pages.values():
@@ -110,17 +123,26 @@ def main():
         if it["q"] not in seen:
             seen.add(it["q"]); items.append(it)
 
-    out, misses = {}, []
-    with ThreadPoolExecutor(max_workers=6) as ex:
-        for i, (q, uri, title) in enumerate(ex.map(one, items), 1):
+    path = os.path.join(BASE, "posters.json")
+    try:
+        out = json.load(open(path, encoding="utf-8"))
+    except Exception:
+        out = {}
+    kept = len([it for it in items if it["q"] in out])
+    if kept:
+        print("keeping %d posters already fetched" % kept)
+    todo = [it for it in items if it["q"] not in out]
+    misses = []
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        for i, (q, uri, title) in enumerate(ex.map(one, todo), 1):
             if uri:
                 out[q] = uri
             else:
                 misses.append(title)
             if i % 25 == 0:
-                print("  %d/%d" % (i, len(items)))
+                print("  %d/%d" % (i, len(todo)))
 
-    json.dump(out, open(os.path.join(BASE, "posters.json"), "w"), ensure_ascii=False)
+    json.dump(out, open(path, "w", encoding="utf-8"), ensure_ascii=False)
     size = sum(len(v) for v in out.values())
     print("\nposters embedded: %d of %d" % (len(out), len(items)))
     print("payload: %.1f MB" % (size / 1e6))
