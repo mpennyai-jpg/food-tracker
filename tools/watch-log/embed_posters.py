@@ -5,15 +5,55 @@ from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-UA = "ToddWatchLog/1.0 (personal watch list; contact via Claude Code session)"
+# Wikimedia returns 403 to clients that do not identify themselves with a
+# contact address. See https://meta.wikimedia.org/wiki/User-Agent_policy
+UA = ("WatchLogBuild/1.0 "
+      "(+https://github.com/mpennyai-jpg/food-tracker; personal watch list) "
+      "python-urllib")
 W, H, QUALITY = 124, 186, 72          # 2x the 3.8rem display slot
 API = "https://en.wikipedia.org/w/api.php"
 
 
 def get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=25) as r:
-        return r.read()
+    req = urllib.request.Request(url, headers={
+        "User-Agent": UA,
+        "Accept": "application/json,image/*;q=0.9,*/*;q=0.8",
+        "Accept-Encoding": "identity",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.read()
+    except urllib.error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read()[:200].decode("utf-8", "replace")
+        except Exception:
+            pass
+        raise RuntimeError("HTTP %s from %s :: %s" % (e.code, url.split("?")[0], body))
+    except urllib.error.URLError as e:
+        raise RuntimeError("cannot reach %s :: %s" % (url.split("?")[0], e.reason))
+
+
+def preflight():
+    """Fail loudly and clearly before attempting 253 downloads."""
+    print("checking reachability ...")
+    try:
+        get(API + "?action=query&format=json&titles=Sicario")
+        print("  en.wikipedia.org OK")
+    except Exception as e:
+        print("  en.wikipedia.org FAILED: %s" % e)
+        return False
+    try:
+        src = thumb_url("Sicario 2015 film")
+        if not src:
+            print("  no thumbnail returned for the test title")
+            return False
+        get(src)
+        print("  upload.wikimedia.org OK (%s)" % src.split("/")[2])
+    except Exception as e:
+        print("  image download FAILED: %s" % e)
+        return False
+    return True
 
 
 def thumb_url(query):
@@ -57,6 +97,9 @@ def one(item):
 
 
 def main():
+    if not preflight():
+        print("\nStopping: the fetch cannot work from here. Send the lines above to Claude.")
+        return 1
     d = json.load(open(os.path.join(BASE, "data.json"), encoding="utf-8"))
     items, seen = [], set()
     for grp in d["movies"] + d["tv"]:
@@ -86,4 +129,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
